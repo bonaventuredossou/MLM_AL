@@ -1,0 +1,35 @@
+model:
+  tokenizer_path: tokenizer_150k
+  layer_norm_eps: 1.0e-05
+  output_past: True
+  type_vocab_size: 1
+  max_length: 256
+  hidden_size: 768
+  num_attention_heads: 6
+  num_hidden_layers: 10
+  intermediate_size: 3072
+
+training:
+  gradient_accumulation_steps: 2
+  resume_training: False
+  ignore_data_skip: False
+  train_from_scratch: True
+  use_whole_word_mask: False
+  lang_sampling_factor: 1.0
+  overwrite_output_dir: False
+  seed: 1234
+  max_steps: 100
+  per_device_train_batch_size: 16
+  per_device_eval_batch_size: 4
+  dataloader_num_workers: 2
+  fp16: True
+  save_steps: 20
+  save_total_limit: 10
+  learning_rate: 0.0001
+  warmup_steps: 50
+
+data:
+  train: data/train/
+  eval:
+    all: data/eval/all_eval.txt 
+    per_lang: data/eval/
