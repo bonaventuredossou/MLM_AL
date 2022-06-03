@@ -52,7 +52,7 @@ class CustomTrainer(Trainer):
         logits = logits.view(-1, tokenizer.vocab_size)
         loss = F.cross_entropy(logits, labels.view(-1))
         torch.cuda.empty_cache()
-        print('Loss before preplexity addition: {}'.format(loss))
+        logger.info('Loss before per-language loss addition: {}'.format(loss))
         
         # next we need to query the model itself on validation samples per language
         eval_dataset_path = Path(held_out_data["eval"]["per_lang"])
