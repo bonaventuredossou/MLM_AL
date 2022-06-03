@@ -54,7 +54,7 @@ def main():
             current_dataset = current_dataset.sample(frac=1)
 
             if lang == 'yor':
-                current_dataset.sample(n = 50000, random_state=1234) # the yorubal dataset is huge so we downsample it for computational reason
+                current_dataset.sample(n = 65000, random_state=1234) # the yoruba dataset is huge so we downsample it for computational reason
             train, test = train_test_split(current_dataset, test_size=0.1, random_state=1234)            
             all_evals += test.input.tolist()
             save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
