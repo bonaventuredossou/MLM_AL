@@ -100,6 +100,7 @@ class CustomTrainer(Trainer):
         logger.info('New loss after per-language loss addition: {}'.format(loss))
         torch.cuda.empty_cache()
         model.train()
+        logger.info('===========================================================')
         return (loss, outputs) if return_outputs else loss
 
 
