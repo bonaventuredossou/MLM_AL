@@ -42,66 +42,66 @@ class CustomTrainer(Trainer):
     def __init__(self, **kwargs) -> None:
         super(CustomTrainer, self).__init__(**kwargs)
 
-    # implement the weighted loss idea here
-    def compute_loss(self, model, inputs, return_outputs=False):
-        torch.cuda.empty_cache()
-        labels = inputs.get("labels")
+    # # implement the weighted loss idea here
+    # def compute_loss(self, model, inputs, return_outputs=False):
+    #     torch.cuda.empty_cache()
+    #     labels = inputs.get("labels")
 
-        outputs = model(**inputs)        
-        logits = outputs.get("logits")
-        logits = logits.view(-1, tokenizer.vocab_size)
-        loss = F.cross_entropy(logits, labels.view(-1))
-        torch.cuda.empty_cache()
-        logger.info('Loss before per-language loss addition: {}'.format(loss))
+    #     outputs = model(**inputs)        
+    #     logits = outputs.get("logits")
+    #     logits = logits.view(-1, tokenizer.vocab_size)
+    #     loss = F.cross_entropy(logits, labels.view(-1))
+    #     torch.cuda.empty_cache()
+    #     logger.info('Loss before per-language loss addition: {}'.format(loss))
         
-        # next we need to query the model itself on validation samples per language
-        eval_dataset_path = Path(held_out_data["eval"]["per_lang"])
-        eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
-        average_language_loss = 0
-        count = 0
+    #     # next we need to query the model itself on validation samples per language
+    #     eval_dataset_path = Path(held_out_data["eval"]["per_lang"])
+    #     eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
+    #     average_language_loss = 0
+    #     count = 0
 
-        for file_path in eval_file_paths:
-            language = file_path.suffix.replace(".", "")
+    #     for file_path in eval_file_paths:
+    #         language = file_path.suffix.replace(".", "")
 
-            batch = training_config['per_device_eval_batch_size']
-            dataset = EvalDataset(tokenizer, str(file_path))
-            number_samples = dataset.__len__()
+    #         batch = training_config['per_device_eval_batch_size']
+    #         dataset = EvalDataset(tokenizer, str(file_path))
+    #         number_samples = dataset.__len__()
             
-            logger.info('Language: {} - Number of Sample: {}'.format(language, number_samples))
-            valid_dataloader = DataLoader(dataset, batch_size=training_config['per_device_eval_batch_size'], shuffle=False)
-            total_loss = 0
-            data_loader_count = 0
-            with torch.no_grad():
-                model.eval()            
-                for data in valid_dataloader:
-                    data['input_ids'] = data['input_ids'].to('cpu') #cuda:1
-                    labels_ = data["input_ids"] #.clone()
-                    outputs_ = model(**data)
-                    del data
-                    torch.cuda.empty_cache()
-                    logits_ = outputs_.get("logits")
-                    logits_ = logits_.view(-1, tokenizer.vocab_size)
-                    loss_ = F.cross_entropy(logits_.to('cpu').float(), labels_.view(-1)) # cuda:1
-                    # logger.info('Current batch loss: {}'.format(loss_))
-                    total_loss += loss_
-                    data_loader_count += 1                
-                    del labels_
-                    del logits_
-                    del outputs_
-                    torch.cuda.empty_cache()
-                language_loss = total_loss/data_loader_count
-                average_language_loss += ((1/number_samples) * language_loss)
-                logger.info('Loss on Language: {} - {}'.format(language, ((1/number_samples) * language_loss)))
-                count += 1
-                torch.cuda.empty_cache()
-        average_language_loss /= count
-        logger.info('Average Loss: {}'.format(average_language_loss))
-        loss += average_language_loss
-        logger.info('New loss after per-language loss addition: {}'.format(loss))
-        torch.cuda.empty_cache()
-        model.train()
-        logger.info('===========================================================')
-        return (loss, outputs) if return_outputs else loss
+    #         logger.info('Language: {} - Number of Sample: {}'.format(language, number_samples))
+    #         valid_dataloader = DataLoader(dataset, batch_size=training_config['per_device_eval_batch_size'], shuffle=False)
+    #         total_loss = 0
+    #         data_loader_count = 0
+    #         with torch.no_grad():
+    #             model.eval()            
+    #             for data in valid_dataloader:
+    #                 data['input_ids'] = data['input_ids'].to('cpu') #cuda:1
+    #                 labels_ = data["input_ids"] #.clone()
+    #                 outputs_ = model(**data)
+    #                 del data
+    #                 torch.cuda.empty_cache()
+    #                 logits_ = outputs_.get("logits")
+    #                 logits_ = logits_.view(-1, tokenizer.vocab_size)
+    #                 loss_ = F.cross_entropy(logits_.to('cpu').float(), labels_.view(-1)) # cuda:1
+    #                 # logger.info('Current batch loss: {}'.format(loss_))
+    #                 total_loss += loss_
+    #                 data_loader_count += 1                
+    #                 del labels_
+    #                 del logits_
+    #                 del outputs_
+    #                 torch.cuda.empty_cache()
+    #             language_loss = total_loss/data_loader_count
+    #             average_language_loss += ((1/number_samples) * language_loss)
+    #             logger.info('Loss on Language: {} - {}'.format(language, ((1/number_samples) * language_loss)))
+    #             count += 1
+    #             torch.cuda.empty_cache()
+    #     average_language_loss /= count
+    #     logger.info('Average Loss: {}'.format(average_language_loss))
+    #     loss += average_language_loss
+    #     logger.info('New loss after per-language loss addition: {}'.format(loss))
+    #     torch.cuda.empty_cache()
+    #     model.train()
+    #     logger.info('===========================================================')
+    #     return (loss, outputs) if return_outputs else loss
 
 
     def get_train_dataloader(self) -> DataLoader:

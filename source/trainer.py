@@ -105,8 +105,8 @@ class TrainingManager:
         )
         self.logger.info(f"No. of training sentences: {len(self.train_dataset)}")
         self.logger.info(f"Building evaluation dataset from {self.data_config['eval']['all']}...")
-        # self.eval_dataset = EvalDataset(self.tokenizer, self.data_config["eval"]["all"], )
-        # self.logger.info(f"No. of evaluation sentences: {len(self.eval_dataset)}")
+        self.eval_dataset = EvalDataset(self.tokenizer, self.data_config["eval"]["all"], )
+        self.logger.info(f"No. of evaluation sentences: {len(self.eval_dataset)}")
 
     def train(self) -> None:
         """
@@ -119,13 +119,14 @@ class TrainingManager:
         )
 
         training_args = TrainingArguments(**self.train_config)
-        # self.model = self.model.to('cuda:0')
-        self.model = torch.nn.DataParallel(self.model, device_ids=[0, 1])
+        self.model = self.model.to('cuda')
+        # self.model = torch.nn.DataParallel(self.model, device_ids=[0, 1])
         self.trainer = CustomTrainer(
             model=self.model,
             args=training_args,
             data_collator=data_collator,
             train_dataset=self.train_dataset
+            eval_dataset=self.eval_dataset 
         )
         train_results = self.trainer.train(model_path=self.model_path)
         train_results_file = os.path.join(self.train_config["output_dir"], "train_results.txt")
@@ -141,13 +142,13 @@ class TrainingManager:
             os.path.join(training_args.output_dir, "trainer_state.json")
         )
         self.logger.info("Saving done!")
-        # self.evaluate() # we are not evaluating here
+        self.evaluate() # we are not evaluating here
 
         eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
         eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
         for file_path in eval_file_paths:
             language = file_path.suffix.replace(".", "")
-            print('Adding new samples to {}'.format(language))
+            self.logger.info('Adding new samples to {}'.format(language))
             new_sentences = self.generate_new_outputs(file_path)
             language_data = pd.read_csv(dataset.format(language), sep='\t')
             updated_language_data = language_data.input.tolist() + new_sentences
@@ -156,14 +157,14 @@ class TrainingManager:
             frame.to_csv(dataset.format(language), sep='\t', index=False)
 
     def sample_sequences_from_mlm(self, sequence):
-        print('Current Input Sequence: {}'.format(sequence))
-        print('...Sampling from MLM...')
+        self.logger.info('Current Input Sequence: {}'.format(sequence))
+        self.logger.info('...Sampling from MLM...')
         full_mlm_seqs = []
         unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.model_config.pop("tokenizer_path"))
         # choose top-1 option of full sequence
         masked = unmasker(frame)
         generated_sequence = masked[0]['sequence']
-        print('Generated sequence: {}'.format(generated_sequence))
+        self.logger.info('Generated sequence: {}'.format(generated_sequence))
         return generated_sequence
 
     def save_list(lines, filename):
@@ -181,7 +182,7 @@ class TrainingManager:
         # we mask the tokens
         sentences_samples_from_mlm = []
         # randomly choosing 1k sentences
-        for sentence in random.choices(sentences, k = 500):
+        for sentence in random.choices(sentences, k = 1000):
             sentence_split = sentence.strip().split()
             n_tokens = int(len(sentence_split) * MLM_PROBABILITY) + 1
 
@@ -198,36 +199,36 @@ class TrainingManager:
 
 
 
-    # def evaluate(self) -> None:
-    #     """
-    #     Evaluate trained model on entire evaluation dataset and on per language datasets.
-    #     """
-    #     self.logger.info("Evaluating model...")
-    #     self.logger.info("Evaluating on entire evaluation dataset...")
-    #     self._evaluate()
-    #     self.logger.info("Done! Evaluating on each language...")
-    #     eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
-    #     eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
-    #     for file_path in eval_file_paths:
-    #         language = file_path.suffix.replace(".", "")
-    #         dataset = EvalDataset(self.tokenizer, str(file_path))
-    #         self.logger.info(f"Evaluating {language} with {file_path}...")
-    #         self._evaluate(dataset, language)
-    #     self.logger.info("Completed all evaluations!")
+    def evaluate(self) -> None:
+        """
+        Evaluate trained model on entire evaluation dataset and on per language datasets.
+        """
+        self.logger.info("Evaluating model...")
+        self.logger.info("Evaluating on entire evaluation dataset...")
+        self._evaluate()
+        self.logger.info("Done! Evaluating on each language...")
+        eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
+        eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
+        for file_path in eval_file_paths:
+            language = file_path.suffix.replace(".", "")
+            dataset = EvalDataset(self.tokenizer, str(file_path))
+            self.logger.info(f"Evaluating {language} with {file_path}...")
+            self._evaluate(dataset, language)
+        self.logger.info("Completed all evaluations!")
 
-    # def _evaluate(self, eval_dataset: Optional[Dataset] = None, language: str = "all") -> None:
-    #     """
-    #     Perform evaluation on a given dataset.
-    #     """
-    #     eval_output = self.trainer.evaluate(eval_dataset)
-    #     eval_output["perplexity"] = math.exp(eval_output["eval_loss"])
+    def _evaluate(self, eval_dataset: Optional[Dataset] = None, language: str = "all") -> None:
+        """
+        Perform evaluation on a given dataset.
+        """
+        eval_output = self.trainer.evaluate(eval_dataset)
+        eval_output["perplexity"] = math.exp(eval_output["eval_loss"])
 
-    #     output_eval_file = os.path.join(self.train_config["output_dir"], language + "_eval.txt")
-    #     with open(output_eval_file, "w") as writer:
-    #         self.logger.info(f"***** {language} eval results *****")
-    #         for key, value in sorted(eval_output.items()):
-    #             self.logger.info(f"  {key} = {value}")
-    #             writer.write(f"{key} = {value}\n")
+        output_eval_file = os.path.join(self.train_config["output_dir"], language + "_eval.txt")
+        with open(output_eval_file, "w") as writer:
+            self.logger.info(f"***** {language} eval results *****")
+            for key, value in sorted(eval_output.items()):
+                self.logger.info(f"  {key} = {value}")
+                writer.write(f"{key} = {value}\n")
 
     def _maybe_resume_training(self) -> None:
         """
