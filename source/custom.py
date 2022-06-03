@@ -91,7 +91,7 @@ class CustomTrainer(Trainer):
                     torch.cuda.empty_cache()
                 language_loss = total_loss/data_loader_count
                 average_language_loss += ((1/number_samples) * language_loss)
-                logger.info('Loss on Language: {} - {}'.format(language, average_language_loss))
+                logger.info('Loss on Language: {} - {}'.format(language, ((1/number_samples) * language_loss)))
                 count += 1
                 torch.cuda.empty_cache()
         average_language_loss /= count
