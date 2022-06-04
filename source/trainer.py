@@ -125,7 +125,7 @@ class TrainingManager:
             model=self.model,
             args=training_args,
             data_collator=data_collator,
-            train_dataset=self.train_dataset
+            train_dataset=self.train_dataset,
             eval_dataset=self.eval_dataset 
         )
         train_results = self.trainer.train(model_path=self.model_path)
