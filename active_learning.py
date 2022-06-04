@@ -44,6 +44,18 @@ def save_list(lines, filename):
 
 def main():
     active_learning_steps = 5
+    if not os.path.exists('data'):
+        os.mkdir('data')
+
+    if not os.path.exists('data/train'):
+        os.mkdir('data/train')
+
+    if not os.path.exists('data/eval'):
+        os.mkdir('data/eval')
+
+    if not os.path.exists('data/txt'):
+        os.mkdir('data/txt')
+
     for step in range(1, active_learning_steps + 1):
         print('Active Learning Step {}'.format(step))
         all_evals = []
