@@ -13,7 +13,7 @@ training:
   gradient_accumulation_steps: 2
   resume_training: True
   ignore_data_skip: False
-  train_from_scratch: True
+  train_from_scratch: False
   use_whole_word_mask: False
   lang_sampling_factor: 1.0
   overwrite_output_dir: False
