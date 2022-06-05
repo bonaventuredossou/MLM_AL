@@ -11,6 +11,7 @@ import torch
 import pandas as pd
 
 import transformers
+from transformers import pipeline
 from torch.utils.data import Dataset
 from transformers import DataCollatorForLanguageModeling
 from transformers import DataCollatorForWholeWordMask
@@ -108,41 +109,43 @@ class TrainingManager:
         self.eval_dataset = EvalDataset(self.tokenizer, self.data_config["eval"]["all"], )
         self.logger.info(f"No. of evaluation sentences: {len(self.eval_dataset)}")
 
-    def train(self) -> None:
+    def train(self, should_generate_first=False) -> None:
         """
         Perform training.
         """
-        self.logger.info("Starting Training...")
+        if should_generate_first:
+            self.logger.info("Training stopped. Resuming but generating new samples first")
+        else:
+            self.logger.info("Starting Training...")
+            data_collator = self.collator_class(
+                tokenizer=self.tokenizer, mlm_probability=MLM_PROBABILITY
+            )
 
-        data_collator = self.collator_class(
-            tokenizer=self.tokenizer, mlm_probability=MLM_PROBABILITY
-        )
+            training_args = TrainingArguments(**self.train_config)
+            self.model = self.model.to('cuda')
+            # self.model = torch.nn.DataParallel(self.model, device_ids=[0, 1])
+            self.trainer = CustomTrainer(
+                model=self.model,
+                args=training_args,
+                data_collator=data_collator,
+                train_dataset=self.train_dataset,
+                eval_dataset=self.eval_dataset 
+            )
+            train_results = self.trainer.train(model_path=self.model_path)
+            train_results_file = os.path.join(self.train_config["output_dir"], "train_results.txt")
+            with open(train_results_file, "w") as writer:
+                self.logger.info("***** Train results *****")
+                for key, value in sorted(train_results.metrics.items()):
+                    self.logger.info(f"  {key} = {value}")
+                    writer.write(f"{key} = {value}\n")
 
-        training_args = TrainingArguments(**self.train_config)
-        self.model = self.model.to('cuda')
-        # self.model = torch.nn.DataParallel(self.model, device_ids=[0, 1])
-        self.trainer = CustomTrainer(
-            model=self.model,
-            args=training_args,
-            data_collator=data_collator,
-            train_dataset=self.train_dataset,
-            eval_dataset=self.eval_dataset 
-        )
-        train_results = self.trainer.train(model_path=self.model_path)
-        train_results_file = os.path.join(self.train_config["output_dir"], "train_results.txt")
-        with open(train_results_file, "w") as writer:
-            self.logger.info("***** Train results *****")
-            for key, value in sorted(train_results.metrics.items()):
-                self.logger.info(f"  {key} = {value}")
-                writer.write(f"{key} = {value}\n")
-
-        self.logger.info("Training Done! Saving model and model state...")
-        self.trainer.save_model()
-        self.trainer.state.save_to_json(
-            os.path.join(training_args.output_dir, "trainer_state.json")
-        )
-        self.logger.info("Saving done!")
-        self.evaluate() # we are not evaluating here
+            self.logger.info("Training Done! Saving model and model state...")
+            self.trainer.save_model()
+            self.trainer.state.save_to_json(
+                os.path.join(training_args.output_dir, "trainer_state.json")
+            )
+            self.logger.info("Saving done!")
+            self.evaluate()
 
         eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
         eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)

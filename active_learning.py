@@ -57,24 +57,29 @@ def main():
         os.mkdir('data/txt')
 
     for step in range(1, active_learning_steps + 1):
-        print('Active Learning Step {}'.format(step))
-        all_evals = []
-        # build datasets for the current AL round    
-        for lang in langs:
-            # shuffle the training set for this active learning round
-            current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
-            current_dataset = current_dataset.sample(frac=1)
-            # if lang == 'yor':
-                # current_dataset = current_dataset.sample(n = 65000, random_state=1234) # the yoruba dataset is huge so we downsample it for computational reason
-            train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
-            all_evals += test.input.tolist()
-            save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
-            save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
-
-        save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
-        # model's training
         trainer = TrainingManager(config, experiment_path)
-        trainer.train()
+        # this was made to handle a bug at the first iteration
+        # the code ccrashed because `pipeline` was not imported.
+        # We need to resume training, and generate new samples to continue the training process
+        if step == 1:
+            trainer.train(should_generate_first=True)
+        else:        
+            print('Active Learning Step {}'.format(step))
+            all_evals = []
+            # build datasets for the current AL round    
+            for lang in langs:
+                # shuffle the training set for this active learning round
+                current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
+                current_dataset = current_dataset.sample(frac=1)
+                # if lang == 'yor':
+                    # current_dataset = current_dataset.sample(n = 65000, random_state=1234) # the yoruba dataset is huge so we downsample it for computational reason
+                train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
+                all_evals += test.input.tolist()
+                save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
+                save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
+
+            save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
+            trainer.train()
 
 
 if __name__ == '__main__':
