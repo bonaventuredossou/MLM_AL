@@ -26,18 +26,6 @@ from transformers import XLMRobertaTokenizer
 from source.utils import load_config
 from source.utils import create_logger
 
-config = load_config("models_configurations/large.yml")
-
-held_out_data = config["data"]
-model_config = config["model"]
-training_config = config["training"]
-tokenizer = XLMRobertaTokenizer.from_pretrained(model_config.pop("tokenizer_path"))
-tokenizer.model_max_length = model_config["max_length"]
-EVAL_FILE_PATTERN = "eval.*"
-
-experiment_path = "/home/mila/b/bonaventure.dossou/emnlp22/experiments/"
-logger = create_logger(os.path.join(experiment_path, "train_results.txt"))
-
 class CustomTrainer(Trainer):
     def __init__(self, **kwargs) -> None:
         super(CustomTrainer, self).__init__(**kwargs)

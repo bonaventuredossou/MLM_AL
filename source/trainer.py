@@ -75,7 +75,7 @@ class TrainingManager:
         Build tokenizer from pretrained sentencepiece model and update config.
         """
         self.tokenizer = XLMRobertaTokenizer.from_pretrained(
-            self.model_config.pop("tokenizer_path")
+            self.model_config["tokenizer_path"]
         )
         self.tokenizer.model_max_length = self.model_config["max_length"]
 
@@ -95,7 +95,7 @@ class TrainingManager:
         """
         self.logger.info("Building datasets...")
         batch_size = self.train_config["per_device_train_batch_size"]
-        lang_sampling_factor = self.train_config.pop("lang_sampling_factor")
+        lang_sampling_factor = self.train_config["lang_sampling_factor"]
         self.logger.info(f"Building train dataset from {self.data_config['train']}...")
         self.train_dataset = TrainDataset(
             self.tokenizer,
@@ -163,7 +163,7 @@ class TrainingManager:
         self.logger.info('Current Input Sequence: {}'.format(sequence))
         self.logger.info('...Sampling from MLM...')
         full_mlm_seqs = []
-        unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.model_config.pop("tokenizer_path"))
+        unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.model_config["tokenizer_path"])
         # choose top-1 option of full sequence
         masked = unmasker(frame)
         generated_sequence = masked[0]['sequence']
@@ -239,7 +239,7 @@ class TrainingManager:
         """
         self._set_data_collator_class()
 
-        if self.train_config.pop("resume_training", None):
+        if self.train_config["resume_training"]:
             self.model_path = self.train_config["output_dir"]
             self.logger.info(f"Training will resume from {self.model_path}")
             self._build_tokenizer()
@@ -251,7 +251,7 @@ class TrainingManager:
             )
         else:
             self.model_path = None
-            if self.train_config.pop("train_from_scratch"):
+            if self.train_config["train_from_scratch"]:
                 print('Building the model from scratch...')
                 self.logger.info("Training from scratch...")
                 self._build_tokenizer()
@@ -277,7 +277,7 @@ class TrainingManager:
         """
         Set the data collator class.
         """
-        if self.train_config.pop("use_whole_word_mask"):
+        if self.train_config["use_whole_word_mask"]:
             self.collator_class = DataCollatorForWholeWordMask
         else:
             self.collator_class = DataCollatorForLanguageModeling
