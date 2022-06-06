@@ -25,7 +25,7 @@ from source.dataset import EvalDataset
 from source.dataset import TrainDataset
 from source.utils import create_logger
 
-dataset = '../dataset/{}_mono.tsv'
+dataset = './dataset/{}_mono.tsv'
 
 DEFAULT_XLM_MODEL_SIZE = "xlm-roberta-large"
 MLM_PROBABILITY = 0.15
@@ -52,24 +52,23 @@ class TrainingManager:
         experiment_path: path specified to save training outputs
     """
 
-    def __init__(self, config: Dict[str, Any], experiment_path: str) -> None:
+    def __init__(self, config: Dict[str, Any], experiment_path: str, active_learning_step: int) -> None:
         self.data_config = config["data"]
         self.model_config = config["model"]
         self.train_config = config["training"]
         self.train_config["output_dir"] = experiment_path
+        self.active_learning_step = active_learning_step
         self.logger = create_logger(os.path.join(experiment_path, "train_log.txt"))
-
         # modifying huggingface logger to log into a file
         hf_logger = transformers.logging.get_logger()
         file_handler = logging.FileHandler(os.path.join(experiment_path, "hf_log.txt"))
         file_handler.setLevel(level=logging.DEBUG)
         hf_logger.addHandler(file_handler)
 
+        self.logger.info('Active Learning Step {}'.format(self.active_learning_step))
         self.logger.info(f"Experiment Output Path: {experiment_path}")
         self.logger.info(f"Training will be done with this configuration: \n {config} ")
-
         self._maybe_resume_training()
-        self.unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.model_config["tokenizer_path"])
 
     def _build_tokenizer(self) -> None:
         """
@@ -110,12 +109,25 @@ class TrainingManager:
         self.eval_dataset = EvalDataset(self.tokenizer, self.data_config["eval"]["all"], )
         self.logger.info(f"No. of evaluation sentences: {len(self.eval_dataset)}")
 
-    def train(self, should_generate_first=False) -> None:
+    def train(self) -> None:
         """
         Perform training.
         """
-        if should_generate_first:
+        if self.data_config["generate_first"]:
             self.logger.info("Training stopped. Resuming but generating new samples first")
+            available_gpus = [i for i in range(torch.cuda.device_count())]
+            unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])
+            eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
+            eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
+            for file_path in eval_file_paths:
+                language = file_path.suffix.replace(".", "")
+                self.logger.info('Adding new samples to {}'.format(language))
+                new_sentences = self.generate_new_outputs(file_path, unmasker)
+                language_data = pd.read_csv(dataset.format(language), sep='\t')
+                updated_language_data = language_data.input.tolist() + new_sentences
+                frame = pd.DataFrame()
+                frame['input'] = updated_language_data
+                frame.to_csv(dataset.format(language), sep='\t', index=False)
         else:
             self.logger.info("Starting Training...")
             data_collator = self.collator_class(
@@ -148,24 +160,29 @@ class TrainingManager:
             self.logger.info("Saving done!")
             self.evaluate()
 
-        eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
-        eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
-        for file_path in eval_file_paths:
-            language = file_path.suffix.replace(".", "")
-            self.logger.info('Adding new samples to {}'.format(language))
-            new_sentences = self.generate_new_outputs(file_path)
-            language_data = pd.read_csv(dataset.format(language), sep='\t')
-            updated_language_data = language_data.input.tolist() + new_sentences
-            frame = pd.DataFrame()
-            frame['input'] = updated_language_data
-            frame.to_csv(dataset.format(language), sep='\t', index=False)
+            available_gpus = [i for i in range(torch.cuda.device_count())]
+            unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])
+            
+            eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
+            eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
+            for file_path in eval_file_paths:
+                language = file_path.suffix.replace(".", "")
+                self.logger.info('Adding new samples to {}'.format(language))
+                new_sentences = self.generate_new_outputs(file_path, unmasker)
+                language_data = pd.read_csv(dataset.format(language), sep='\t')
+                updated_language_data = language_data.input.tolist() + new_sentences
+                frame = pd.DataFrame()
+                frame['input'] = updated_language_data
+                frame.to_csv(dataset.format(language), sep='\t', index=False)
 
-    def sample_sequences_from_mlm(self, sequence):
+
+
+    def sample_sequences_from_mlm(self, sequence, unmasker):
         self.logger.info('Current Input Sequence: {}'.format(sequence))
         self.logger.info('...Sampling from MLM...')
         full_mlm_seqs = []
         # choose top-1 option of full sequence
-        masked = self.unmasker(sequence)
+        masked = unmasker(sequence)
         generated_sequence = masked[0]['sequence']
         self.logger.info('Generated sequence: {}'.format(generated_sequence))
         return generated_sequence
@@ -176,7 +193,7 @@ class TrainingManager:
         file.write(data)
         file.close()
 
-    def generate_new_outputs(self, dataset_path):
+    def generate_new_outputs(self, dataset_path, unmasker):
         sentences = []
         with open(dataset_path, 'r', encoding='utf-8') as dataset_samples:
             for sentence in dataset_samples.readlines():
@@ -193,7 +210,7 @@ class TrainingManager:
             prompt = ' '.join(prompt)
             for _ in range(n_tokens):
                 prompt = prompt.strip() + ' <mask>'
-                prompt = self.sample_sequences_from_mlm(prompt.strip())
+                prompt = self.sample_sequences_from_mlm(prompt.strip(), unmasker)
                 prompt = prompt.strip()
 
             sentences_samples_from_mlm.append(prompt)

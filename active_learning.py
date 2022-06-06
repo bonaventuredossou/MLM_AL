@@ -57,14 +57,10 @@ def main():
         os.mkdir('data/txt')
 
     for step in range(1, active_learning_steps + 1):
-        trainer = TrainingManager(config, experiment_path)
         # this was made to handle a bug at the first iteration
         # the code ccrashed because `pipeline` was not imported.
         # We need to resume training, and generate new samples to continue the training process
-        if step == 1:
-            trainer.train(should_generate_first=True)
-        else:
-            print('Active Learning Step {}'.format(step))
+        if step != 1:
             all_evals = []
             # build datasets for the current AL round    
             for lang in langs:
@@ -77,9 +73,12 @@ def main():
                 all_evals += test.input.tolist()
                 save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
                 save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
-
             save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
-            trainer.train()
+            config["data"]["generate_first"] = False
+        else:
+            config["data"]["generate_first"] = True
+        trainer = TrainingManager(config, experiment_path, step)
+        trainer.train()
 
 
 if __name__ == '__main__':
