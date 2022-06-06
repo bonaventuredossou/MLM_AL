@@ -33,3 +33,4 @@ data:
   eval:
     all: data/eval/all_eval.txt 
     per_lang: data/eval/
+  generate_first: True
