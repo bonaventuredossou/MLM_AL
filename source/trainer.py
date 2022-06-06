@@ -209,8 +209,8 @@ class TrainingManager:
             prompt = sentence_split[:-n_tokens]
             prompt = ' '.join(prompt)
             for _ in range(n_tokens):
-                prompt = prompt.strip() + ' <mask>'
-                prompt = self.sample_sequences_from_mlm(prompt.strip(), unmasker)
+                prompt = prompt.strip() + ' <mask> '
+                prompt = self.sample_sequences_from_mlm(prompt.lstrip(), unmasker)
                 prompt = prompt.strip()
 
             sentences_samples_from_mlm.append(prompt)
