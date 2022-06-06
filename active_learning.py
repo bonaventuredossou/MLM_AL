@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 import os
 import shutil
 
+from transformers import pipeline
 from absl import flags
 
 from source.trainer import TrainingManager
@@ -33,7 +34,6 @@ langs = ['amh', 'hau', 'lug', 'luo', 'pcm', 'sna', 'tsn', 'wol', 'ewe', 'bam', '
          'fon', 'ibo', 'kin', 'swa', 'xho', 'yor']
 
 dataset = 'dataset/{}_mono.tsv'
-
 
 def save_list(lines, filename):
     data = '\n'.join(str(_).strip() for _ in lines)
@@ -63,7 +63,7 @@ def main():
         # We need to resume training, and generate new samples to continue the training process
         if step == 1:
             trainer.train(should_generate_first=True)
-        else:        
+        else:
             print('Active Learning Step {}'.format(step))
             all_evals = []
             # build datasets for the current AL round    
