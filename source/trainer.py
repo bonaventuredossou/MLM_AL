@@ -79,7 +79,7 @@ class TrainingManager:
                 try:
                     self.unmasker = pipeline("fill-mask", model=self.model_path, tokenizer='../tokenizer_250k')
                 except Exception as e:
-                    pass
+                    raise e
 
 
     def _build_tokenizer(self) -> None:
