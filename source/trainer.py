@@ -69,6 +69,7 @@ class TrainingManager:
         self.logger.info(f"Training will be done with this configuration: \n {config} ")
 
         self._maybe_resume_training()
+        self.unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.model_config["tokenizer_path"])
 
     def _build_tokenizer(self) -> None:
         """
@@ -163,9 +164,8 @@ class TrainingManager:
         self.logger.info('Current Input Sequence: {}'.format(sequence))
         self.logger.info('...Sampling from MLM...')
         full_mlm_seqs = []
-        unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.model_config["tokenizer_path"])
         # choose top-1 option of full sequence
-        masked = unmasker(frame)
+        masked = self.unmasker(sequence)
         generated_sequence = masked[0]['sequence']
         self.logger.info('Generated sequence: {}'.format(generated_sequence))
         return generated_sequence
