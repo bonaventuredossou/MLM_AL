@@ -69,7 +69,7 @@ class TrainingManager:
         self.logger.info(f"Training will be done with this configuration: \n {config} ")
 
         self._maybe_resume_training()
-        self.unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.tokenizer_path)
+        self.unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.model_config["tokenizer_path"])
 
     def _build_tokenizer(self) -> None:
         """
