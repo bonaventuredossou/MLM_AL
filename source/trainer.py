@@ -37,11 +37,6 @@ KEYS_NOT_IN_TRAIN_ARGS = [
     "resume_training",
 ]
 
-model_path = '/home/mila/b/bonaventure.dossou/emnlp22/experiments/active_learning_lm'
-tokenizer_path = 'tokenizer_250k'
-
-unmasker = pipeline("fill-mask", model=model_path, tokenizer=tokenizer_path)
-
 transformers.logging.set_verbosity_debug()
 
 
@@ -74,6 +69,7 @@ class TrainingManager:
         self.logger.info(f"Training will be done with this configuration: \n {config} ")
 
         self._maybe_resume_training()
+        self.unmasker = pipeline("fill-mask", model=self.model_path, tokenizer=self.tokenizer_path)
 
     def _build_tokenizer(self) -> None:
         """
