@@ -71,6 +71,7 @@ class TrainingManager:
         self.logger.info(f"Experiment Output Path: {experiment_path}")
         self.logger.info(f"Training will be done with this configuration: \n {config} ")
         self._maybe_resume_training()
+        self._remove_redundant_training_args()
 
     def _build_tokenizer(self) -> None:
         """
