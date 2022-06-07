@@ -58,8 +58,8 @@ def main():
 
     for step in range(1, active_learning_steps + 1):
         # this was made to handle a bug at the first iteration
-        # the code ccrashed because `pipeline` was not imported.
-        # We need to resume training, and generate new samples to continue the training process
+        # the code crashed because `pipeline` was not imported.
+        # We need to resume training, and generate new samples to continue the training process with augmented samples
         if step != 1:
             all_evals = []
             # build datasets for the current AL round    
@@ -67,8 +67,6 @@ def main():
                 # shuffle the training set for this active learning round
                 current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
                 current_dataset = current_dataset.sample(frac=1)
-                # if lang == 'yor':
-                    # current_dataset = current_dataset.sample(n = 65000, random_state=1234) # the yoruba dataset is huge so we downsample it for computational reason
                 train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
                 all_evals += test.input.tolist()
                 save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
@@ -77,8 +75,9 @@ def main():
             config["data"]["generate_first"] = False
         else:
             config["data"]["generate_first"] = True
-            trainer = TrainingManager(config, experiment_path, step)
-            trainer.train()
+
+        trainer = TrainingManager(config, experiment_path, step)
+        trainer.train()
 
 
 if __name__ == '__main__':
