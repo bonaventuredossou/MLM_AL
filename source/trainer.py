@@ -274,7 +274,7 @@ class TrainingManager:
             self.logger.info(f"Training will resume from {self.model_path}")
             self._build_tokenizer()
             self._build_datasets()
-            # self._remove_redundant_training_args()
+            self._remove_redundant_training_args()
             self.model = XLMRobertaForMaskedLM.from_pretrained(self.model_path)
             self.logger.info(
                 f"Model loaded from {self.model_path} with num parameters: {self.model.num_parameters()}"

@@ -73,6 +73,9 @@ def main():
                 save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
             save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
             config["data"]["generate_first"] = False
+            # we retrain the model from scratch
+            config["training"]["resume_training"] = False
+            config["training"]["train_from_scratch"] = True
         else:
             config["data"]["generate_first"] = True
 
