@@ -76,6 +76,7 @@ def main():
             # we retrain the model from scratch
             config["training"]["resume_training"] = False
             config["training"]["train_from_scratch"] = True
+            config["training"]["use_whole_word_mask"] = False
         else:
             config["data"]["generate_first"] = True
 
