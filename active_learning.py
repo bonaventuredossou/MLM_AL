@@ -77,8 +77,8 @@ def main():
             config["data"]["generate_first"] = False
         else:
             config["data"]["generate_first"] = True
-        trainer = TrainingManager(config, experiment_path, step)
-        trainer.train()
+            trainer = TrainingManager(config, experiment_path, step)
+            trainer.train()
 
 
 if __name__ == '__main__':

@@ -37,6 +37,7 @@ KEYS_NOT_IN_TRAIN_ARGS = [
     "resume_training",
 ]
 
+MAX_LENGTH = 256
 transformers.logging.set_verbosity_debug()
 
 
@@ -121,6 +122,7 @@ class TrainingManager:
             eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
             for file_path in eval_file_paths:
                 language = file_path.suffix.replace(".", "")
+                print('Adding new samples to {}'.format(language))
                 self.logger.info('Adding new samples to {}'.format(language))
                 new_sentences = self.generate_new_outputs(file_path, unmasker)
                 language_data = pd.read_csv(dataset.format(language), sep='\t')
@@ -167,6 +169,7 @@ class TrainingManager:
             eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
             for file_path in eval_file_paths:
                 language = file_path.suffix.replace(".", "")
+                print('Adding new samples to {}'.format(language))
                 self.logger.info('Adding new samples to {}'.format(language))
                 new_sentences = self.generate_new_outputs(file_path, unmasker)
                 language_data = pd.read_csv(dataset.format(language), sep='\t')
@@ -197,7 +200,10 @@ class TrainingManager:
         sentences = []
         with open(dataset_path, 'r', encoding='utf-8') as dataset_samples:
             for sentence in dataset_samples.readlines():
-                sentences.append(sentence.strip('\n'))
+                sentence = sentence.strip('\n')
+
+                if len(sentence.split()) > MAX_LENGTH and not sentence.isspace():
+                    sentences.append(sentence)
 
         # we mask the tokens
         sentences_samples_from_mlm = []
@@ -209,7 +215,7 @@ class TrainingManager:
             prompt = sentence_split[:-n_tokens]
             prompt = ' '.join(prompt)
             for _ in range(n_tokens):
-                prompt = prompt.strip() + ' <mask> '
+                prompt = prompt.strip() + ' <mask>'
                 prompt = self.sample_sequences_from_mlm(prompt, unmasker)
                 prompt = prompt.strip()
 
