@@ -37,7 +37,7 @@ KEYS_NOT_IN_TRAIN_ARGS = [
     "resume_training",
 ]
 
-MAX_LENGTH = 240
+MAX_LENGTH = 250
 MIN_LENGTH = 3
 transformers.logging.set_verbosity_debug()
 
@@ -186,9 +186,13 @@ class TrainingManager:
         self.logger.info('...Sampling from MLM...')
         full_mlm_seqs = []
         # choose top-1 option of full sequence
-        masked = unmasker(sequence)
-        generated_sequence = masked[0]['sequence']
-        self.logger.info('Generated sequence: {}'.format(generated_sequence))
+        generated_sequence = ''
+        try:
+            masked = unmasker(sequence)
+            generated_sequence = masked[0]['sequence']
+            self.logger.info('Generated sequence: {}'.format(generated_sequence))
+        except Exception as e:
+            pass
         return generated_sequence
 
     def save_list(lines, filename):
@@ -215,12 +219,14 @@ class TrainingManager:
 
             prompt = sentence_split[:-n_tokens]
             prompt = ' '.join(prompt)
+            saved_prompt = prompt
             for _ in range(n_tokens):
                 prompt = prompt.strip() + ' <mask>'
                 prompt = self.sample_sequences_from_mlm(prompt, unmasker)
                 prompt = prompt.strip()
 
-            sentences_samples_from_mlm.append(prompt)
+            if prompt != saved_prompt:
+                sentences_samples_from_mlm.append(prompt)
         
         return sentences_samples_from_mlm
 
