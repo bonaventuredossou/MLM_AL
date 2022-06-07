@@ -37,7 +37,8 @@ KEYS_NOT_IN_TRAIN_ARGS = [
     "resume_training",
 ]
 
-MAX_LENGTH = 256
+MAX_LENGTH = 240
+MIN_LENGTH = 3
 transformers.logging.set_verbosity_debug()
 
 
@@ -202,14 +203,14 @@ class TrainingManager:
             for sentence in dataset_samples.readlines():
                 sentence = sentence.strip('\n')
 
-                if len(sentence.split()) <= MAX_LENGTH and not sentence.isspace():
+                if len(sentence.split()) >= MIN_LENGTH and len(sentence.split()) <= MAX_LENGTH and not sentence.isspace():
                     sentences.append(sentence)
 
         # we mask the tokens
         sentences_samples_from_mlm = []
         # randomly choosing 1k sentences
-        for sentence in random.choices(sentences, k = 1000):
-            sentence_split = sentence.strip().split()
+        for chosen_sentence in random.choices(sentences, k = 500):
+            sentence_split = chosen_sentence.strip().split()
             n_tokens = int(len(sentence_split) * MLM_PROBABILITY) + 1
 
             prompt = sentence_split[:-n_tokens]
