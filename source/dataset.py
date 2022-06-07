@@ -15,7 +15,7 @@ from source.utils import create_logger
 
 TRAIN_FILE_PATTERN = "train.*"
 INIT_DATA_SEED = 1234
-MIN_NUM_TOKENS = 2
+MIN_NUM_TOKENS = 5
 NUM_GPUS = 2
 np.random.seed(INIT_DATA_SEED)
 
