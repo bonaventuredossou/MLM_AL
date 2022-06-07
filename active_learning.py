@@ -57,29 +57,18 @@ def main():
         os.mkdir('data/txt')
 
     for step in range(1, active_learning_steps + 1):
-        # this was made to handle a bug at the first iteration
-        # the code crashed because `pipeline` was not imported.
-        # We need to resume training, and generate new samples to continue the training process with augmented samples
-        if step != 1:
-            all_evals = []
-            # build datasets for the current AL round    
-            for lang in langs:
-                # shuffle the training set for this active learning round
-                current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
-                current_dataset = current_dataset.sample(frac=1)
-                train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
-                all_evals += test.input.tolist()
-                save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
-                save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
-            save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
-            config["data"]["generate_first"] = False
-            # we retrain the model from scratch
-            config["training"]["resume_training"] = False
-            config["training"]["train_from_scratch"] = True
-            config["training"]["use_whole_word_mask"] = False
-        else:
-            config["data"]["generate_first"] = True
+        all_evals = []
+        # build datasets for the current AL round    
+        for lang in langs:
+            # shuffle the training set for this active learning round
+            current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
+            current_dataset = current_dataset.sample(frac=1)
+            train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
+            all_evals += test.input.tolist()
+            save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
+            save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
 
+        save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
         trainer = TrainingManager(config, experiment_path, step)
         trainer.train()
 
