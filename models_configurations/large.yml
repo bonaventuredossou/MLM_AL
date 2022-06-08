@@ -11,11 +11,7 @@ model:
 
 training:
   gradient_accumulation_steps: 2
-  resume_training: False
   ignore_data_skip: False
-  train_from_scratch: True
-  use_whole_word_mask: False
-  lang_sampling_factor: 1.0
   overwrite_output_dir: False
   seed: 1234
   max_steps: 50000
@@ -23,10 +19,10 @@ training:
   per_device_eval_batch_size: 32
   dataloader_num_workers: 6
   fp16: True
-  save_steps: 2000
+  save_steps: 20000
   save_total_limit: 1
   learning_rate: 0.0001
-  warmup_steps: 4000
+  warmup_steps: 10000
 
 data:
   train: data/train/

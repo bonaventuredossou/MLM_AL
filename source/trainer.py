@@ -20,6 +20,8 @@ from transformers import XLMRobertaConfig
 from transformers import XLMRobertaForMaskedLM
 from transformers import XLMRobertaTokenizer
 
+import shutil
+
 from source.custom import CustomTrainer
 from source.dataset import EvalDataset
 from source.dataset import TrainDataset
@@ -30,14 +32,8 @@ dataset = './dataset/{}_mono.tsv'
 DEFAULT_XLM_MODEL_SIZE = "xlm-roberta-large"
 MLM_PROBABILITY = 0.15
 EVAL_FILE_PATTERN = "eval.*"
-KEYS_NOT_IN_TRAIN_ARGS = [
-    "train_from_scratch",
-    "use_whole_word_mask",
-    "lang_sampling_factor",
-    "resume_training",
-]
 
-MAX_LENGTH = 250
+MAX_LENGTH = 256
 MIN_LENGTH = 3
 transformers.logging.set_verbosity_debug()
 
@@ -98,7 +94,7 @@ class TrainingManager:
         """
         self.logger.info("Building datasets...")
         batch_size = self.train_config["per_device_train_batch_size"]
-        lang_sampling_factor = self.train_config["lang_sampling_factor"]
+        lang_sampling_factor = 1.0
         self.logger.info(f"Building train dataset from {self.data_config['train']}...")
         self.train_dataset = TrainDataset(
             self.tokenizer,
@@ -157,6 +153,9 @@ class TrainingManager:
             frame = pd.DataFrame()
             frame['input'] = updated_language_data
             frame.to_csv(dataset.format(language), sep='\t', index=False)
+
+        # after generation we remove existing checkpoints to start from scratch
+        shutil.rmtree(training_args.output_dir)
 
 
 
@@ -245,48 +244,18 @@ class TrainingManager:
         Checks if we want to resume the training or not, and launches the appropriate option.
         """
         self._set_data_collator_class()
-        if self.train_config["resume_training"]:
-            self.model_path = self.train_config["output_dir"]
-            self.logger.info(f"Training will resume from {self.model_path}")
-            self._build_tokenizer()
-            self._build_datasets()
-            self._remove_redundant_training_args()
-            self.model = XLMRobertaForMaskedLM.from_pretrained(self.model_path)
-            self.logger.info(
-                f"Model loaded from {self.model_path} with num parameters: {self.model.num_parameters()}"
-            )
-        else:
-            self.model_path = None
-            if self.train_config["train_from_scratch"]:
-                print('Building the model from scratch...')
-                self.logger.info("Training from scratch...")
-                self._build_tokenizer()
-                self._build_model()
-            else:
-                self.logger.info("Not training from scratch, finetuning pretrained model...")
-                self.logger.info("Building tokenizer from pretrained...")
-                self.tokenizer = XLMRobertaTokenizer.from_pretrained(DEFAULT_XLM_MODEL_SIZE)
-                self.logger.info("Building model from pretrained...")
-                self.model = XLMRobertaForMaskedLM.from_pretrained(DEFAULT_XLM_MODEL_SIZE)
-            self._build_datasets()
-
-    def _remove_redundant_training_args(self) -> None:
-        """
-        Removes keys from self.train_config that are not accepted in huggingface's traininng
-        arguments.
-        """
-        for key in KEYS_NOT_IN_TRAIN_ARGS:
-            if key in self.train_config:
-                del self.train_config[key]
+        self.model_path = None
+        print('Building the model from scratch...')
+        self.logger.info("Training from scratch...")
+        self._build_tokenizer()
+        self._build_model()
+        self._build_datasets()
 
     def _set_data_collator_class(self) -> None:
         """
         Set the data collator class.
         """
-        if self.train_config["use_whole_word_mask"]:
-            self.collator_class = DataCollatorForWholeWordMask
-        else:
-            self.collator_class = DataCollatorForLanguageModeling
+        self.collator_class = DataCollatorForLanguageModeling
 
     def _update_model_config(self) -> None:
         """

@@ -22,14 +22,6 @@ flags.DEFINE_string("config_path", "models_configurations/large.yml", "Config fi
 
 config = load_config("models_configurations/large.yml")
 
-
-experiment_path = os.path.join(EXPERIMENT_PATH, experiment_name)
-os.makedirs(experiment_path, exist_ok=True)
-
-experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
-# shutil.copy2(FLAGS.config_path, experiment_config_path)
-
-
 langs = ['amh', 'hau', 'lug', 'luo', 'pcm', 'sna', 'tsn', 'wol', 'ewe', 'bam', 'bbj', 'mos', 'zul', 'lin', 'nya', 'twi',
          'fon', 'ibo', 'kin', 'swa', 'xho', 'yor']
 
@@ -57,6 +49,11 @@ def main():
         os.mkdir('data/txt')
 
     for step in range(1, active_learning_steps + 1):
+
+        experiment_path = os.path.join(EXPERIMENT_PATH, experiment_name)
+        os.makedirs(experiment_path, exist_ok=True)
+        experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
+
         all_evals = []
         # build datasets for the current AL round    
         for lang in langs:
