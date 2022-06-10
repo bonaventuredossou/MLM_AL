@@ -184,7 +184,7 @@ class TrainingManager:
             for sentence in dataset_samples.readlines():
                 sentence = sentence.strip('\n')
 
-                if len(sentence.split()) >= MIN_LENGTH and len(sentence.split()) <= MAX_LENGTH and not sentence.isspace():
+                if len(sentence.split()) >= MIN_LENGTH and len(sentence.split()) < MAX_LENGTH and not sentence.isspace():
                     sentences.append(sentence)
 
         # we mask the tokens
