@@ -49,7 +49,7 @@ def main():
         os.mkdir('data/txt')
 
     for step in range(1, active_learning_steps + 1):
-
+        print('Active Learning Step: {}'.format(step))
         experiment_path = os.path.join(EXPERIMENT_PATH, experiment_name)
         os.makedirs(experiment_path, exist_ok=True)
         experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
