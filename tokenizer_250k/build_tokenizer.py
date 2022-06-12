@@ -5,17 +5,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 langs = ['amh', 'hau', 'lug', 'luo', 'pcm', 'sna', 'tsn', 'wol', 'ewe', 'bam', 'bbj', 'mos', 'zul', 'lin', 'nya', 'twi',
-         'fon', 'ibo', 'kin', 'swa', 'xho', 'yor']
+         'fon', 'ibo', 'kin', 'swa', 'xho', 'yor', 'oro']
 
 dataset = '../dataset/{}_mono.tsv'
-
 
 def save_list(lines, filename):
     data = '\n'.join(str(_).strip() for _ in lines)
     file = open(filename, 'w', encoding="utf-8")
     file.write(data)
     file.close()
-
 
 def main():
     all_pds = []
@@ -24,9 +22,8 @@ def main():
         current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
         current_dataset = current_dataset.sample(frac=1)
 
-        x_train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)
-        train, valid = train_test_split(x_train, test_size=0.1, random_state=1234)
-        all_pds.append(train)
+        x_train, _ = train_test_split(current_dataset, test_size=0.1, random_state=1234)
+        all_pds.append(x_train)
 
     concats = pd.concat(all_pds)
     save_list(concats.input.tolist(), '../data/txt/all_train.txt')

@@ -16,6 +16,7 @@ from source.utils import create_logger
 TRAIN_FILE_PATTERN = "train.*"
 INIT_DATA_SEED = 1234
 MIN_NUM_TOKENS = 5
+MAX_LENGTH = 250
 NUM_GPUS = 2
 np.random.seed(INIT_DATA_SEED)
 
@@ -54,7 +55,7 @@ class TrainDataset(Dataset):
             lines = [
                 line
                 for line in file_path.read_text(encoding="utf-8").splitlines()
-                if (len(line.split()) > MIN_NUM_TOKENS and not line.isspace())
+                if (len(line.split()) > MIN_NUM_TOKENS and len(line.split()) < MAX_LENGTH and not line.isspace())
             ]
 
             encoding = tokenizer(
@@ -185,7 +186,7 @@ class EvalDataset(Dataset):
         lines = [
             line
             for line in Path(eval_file_path).read_text(encoding="utf-8").splitlines()
-            if (len(line.split()) > MIN_NUM_TOKENS and not line.isspace())
+            if (len(line.split()) > MIN_NUM_TOKENS and len(line.split()) < MAX_LENGTH and not line.isspace())
         ]
         encoding = tokenizer(
             lines, max_length=tokenizer.model_max_length, add_special_tokens=True, truncation=True, padding=True,

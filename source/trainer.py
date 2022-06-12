@@ -154,7 +154,7 @@ class TrainingManager:
             frame.to_csv(dataset.format(language), sep='\t', index=False)
 
         # after generation we remove existing checkpoints to start from scratch
-        shutil.rmtree(training_args.output_dir)
+        # shutil.rmtree(training_args.output_dir)
 
 
 
@@ -189,7 +189,7 @@ class TrainingManager:
 
         # we mask the tokens
         sentences_samples_from_mlm = []
-        # randomly choosing 1k sentences
+        # randomly choosing 500 sentences
         for chosen_sentence in random.choices(sentences, k = 500):
             sentence_split = chosen_sentence.strip().split()
             n_tokens = int(len(sentence_split) * MLM_PROBABILITY) + 1

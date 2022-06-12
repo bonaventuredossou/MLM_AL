@@ -23,7 +23,7 @@ flags.DEFINE_string("config_path", "models_configurations/large.yml", "Config fi
 config = load_config("models_configurations/large.yml")
 
 langs = ['amh', 'hau', 'lug', 'luo', 'pcm', 'sna', 'tsn', 'wol', 'ewe', 'bam', 'bbj', 'mos', 'zul', 'lin', 'nya', 'twi',
-         'fon', 'ibo', 'kin', 'swa', 'xho', 'yor']
+         'fon', 'ibo', 'kin', 'swa', 'xho', 'yor', 'oro']
 
 dataset = 'dataset/{}_mono.tsv'
 
