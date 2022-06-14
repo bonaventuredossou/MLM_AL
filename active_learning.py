@@ -19,7 +19,7 @@ EXPERIMENT_CONFIG_NAME = "config.yml"
 
 experiment_path = os.path.join(EXPERIMENT_PATH, experiment_name)
 if not os.path.exists(experiment_path):
-    os.mdir(experiment_path)
+    os.mkdir(experiment_path)
 experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
 
 
@@ -55,20 +55,18 @@ def main():
 
     for step in range(1, active_learning_steps + 1):
         print('Active Learning Step: {}'.format(step))
-        if step != 2:    
-            all_evals = []
-            # build datasets for the current AL round    
-            for lang in langs:
-                # shuffle the training set for this active learning round
-                current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
-                current_dataset = current_dataset.sample(frac=1)
-                current_dataset.drop_duplicates(inplace=True)
-                train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
-                all_evals += test.input.tolist()
-                save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
-                save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
-            save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
+        all_evals = []
+        # build datasets for the current AL round    
+        for lang in langs:
+            # shuffle the training set for this active learning round
+            current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
+            current_dataset = current_dataset.sample(frac=1)
+            train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
+            all_evals += test.input.tolist()
+            save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
+            save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
 
+        save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
         trainer = TrainingManager(config, experiment_path, step)
         trainer.train()
 

@@ -66,8 +66,7 @@ class TrainingManager:
         self.logger.info('Active Learning Step {}'.format(self.active_learning_step))
         self.logger.info(f"Experiment Output Path: {experiment_path}")
         self.logger.info(f"Training will be done with this configuration: \n {config} ")
-        if self.active_learning_step != 1:
-            self._maybe_resume_training()
+        self._maybe_resume_training()
 
     def _build_tokenizer(self) -> None:
         """
@@ -112,66 +111,44 @@ class TrainingManager:
         """
         Perform training.
         """
-        if self.active_learning_step == 1:
-            self.logger.info('Generating samples for Step 1')
-            self.model_path = self.train_config["output_dir"]
-            self._build_tokenizer()
-            self.model = XLMRobertaForMaskedLM.from_pretrained(self.model_path)
-            available_gpus = [i for i in range(torch.cuda.device_count())]
-            unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])    
-            self.logger.info("Preparing to generate samples")
-            eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
-            eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
-            for file_path in eval_file_paths:
-                language = file_path.suffix.replace(".", "")
-                self.logger.info('Adding new samples to {}'.format(language))
-                new_sentences = self.generate_new_outputs(file_path, unmasker)
-                language_data = pd.read_csv(dataset.format(language), sep='\t')
-                updated_language_data = language_data.input.tolist() + new_sentences
-                frame = pd.DataFrame()
-                frame['input'] = updated_language_data
-                frame.drop_duplicates(inplace=True)
-                frame.to_csv(dataset.format(language), sep='\t', index=False)
-        else:
+        self.logger.info("Starting Training...")
+        data_collator = self.collator_class(tokenizer=self.tokenizer, mlm_probability=MLM_PROBABILITY)
+        training_args = TrainingArguments(**self.train_config)
+        self.model = self.model.to('cuda')
+        self.trainer = CustomTrainer(
+            model=self.model,
+            args=training_args,
+            data_collator=data_collator,
+            train_dataset=self.train_dataset,
+            eval_dataset=self.eval_dataset)
 
-            self.logger.info("Starting Training...")
-            data_collator = self.collator_class(tokenizer=self.tokenizer, mlm_probability=MLM_PROBABILITY)
-            training_args = TrainingArguments(**self.train_config)
-            self.model = self.model.to('cuda')
-            self.trainer = CustomTrainer(
-                model=self.model,
-                args=training_args,
-                data_collator=data_collator,
-                train_dataset=self.train_dataset,
-                eval_dataset=self.eval_dataset)
+        train_results = self.trainer.train(model_path=self.model_path)
+        train_results_file = os.path.join(self.train_config["output_dir"], "train_results.txt")
+        with open(train_results_file, "w") as writer:
+            self.logger.info("***** Train results *****")
+            for key, value in sorted(train_results.metrics.items()):
+                self.logger.info(f"  {key} = {value}")
+                writer.write(f"{key} = {value}\n")
 
-            train_results = self.trainer.train(model_path=self.model_path)
-            train_results_file = os.path.join(self.train_config["output_dir"], "train_results.txt")
-            with open(train_results_file, "w") as writer:
-                self.logger.info("***** Train results *****")
-                for key, value in sorted(train_results.metrics.items()):
-                    self.logger.info(f"  {key} = {value}")
-                    writer.write(f"{key} = {value}\n")
+        self.logger.info("Training Done! Saving model and model state...")
+        self.trainer.save_model()
+        self.trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
+        self.logger.info("Saving done!")
 
-            self.logger.info("Training Done! Saving model and model state...")
-            self.trainer.save_model()
-            self.trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
-            self.logger.info("Saving done!")
-
-            available_gpus = [i for i in range(torch.cuda.device_count())]
-            unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])    
-            eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
-            eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
-            for file_path in eval_file_paths:
-                language = file_path.suffix.replace(".", "")
-                self.logger.info('Adding new samples to {}'.format(language))
-                new_sentences = self.generate_new_outputs(file_path, unmasker)
-                language_data = pd.read_csv(dataset.format(language), sep='\t')
-                updated_language_data = language_data.input.tolist() + new_sentences
-                frame = pd.DataFrame()
-                frame['input'] = updated_language_data
-                frame.drop_duplicates(inplace=True)
-                frame.to_csv(dataset.format(language), sep='\t', index=False)
+        available_gpus = [i for i in range(torch.cuda.device_count())]
+        unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])    
+        eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
+        eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
+        for file_path in eval_file_paths:
+            language = file_path.suffix.replace(".", "")
+            self.logger.info('Adding new samples to {}'.format(language))
+            new_sentences = self.generate_new_outputs(file_path, unmasker)
+            language_data = pd.read_csv(dataset.format(language), sep='\t')
+            updated_language_data = language_data.input.tolist() + new_sentences
+            frame = pd.DataFrame()
+            frame['input'] = updated_language_data
+            frame.drop_duplicates(inplace=True)
+            frame.to_csv(dataset.format(language), sep='\t', index=False)
 
     def sample_sequences_from_mlm(self, sequence, unmasker):
         full_mlm_seqs = []
