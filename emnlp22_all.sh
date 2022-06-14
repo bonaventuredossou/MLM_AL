@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=emnlp_al_mlm
-#SBATCH --gres=gpu:rtx8000:2
-#SBATCH --cpus-per-gpu=18
-#SBATCH --mem=128G
+#SBATCH --gpus-per-node=rtx8000:2
+#SBATCH --cpus-per-gpu=4
+#SBATCH --mem=64G
 #SBATCH --time=168:00:00         
 #SBATCH --partition=long
 #SBATCH --error=/home/mila/b/bonaventure.dossou/emnlp22/slurmerror.txt

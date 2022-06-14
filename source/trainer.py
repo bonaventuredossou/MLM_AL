@@ -73,7 +73,7 @@ class TrainingManager:
         Build tokenizer from pretrained sentencepiece model and update config.
         """
         self.tokenizer = XLMRobertaTokenizer.from_pretrained(
-            self.model_config["tokenizer_path"], max_length=256, add_special_tokens=True, truncation=True, padding=True
+            self.model_config["tokenizer_path"], add_special_tokens=True, truncation=True, padding=True
         )
         self.tokenizer.model_max_length = self.model_config["max_length"]
 
@@ -122,6 +122,8 @@ class TrainingManager:
             train_dataset=self.train_dataset,
             eval_dataset=self.eval_dataset)
 
+        available_gpus = [i for i in range(torch.cuda.device_count())]
+        self.logger.info("***** Trainer Constructed *****")
         train_results = self.trainer.train(model_path=self.model_path)
         train_results_file = os.path.join(self.train_config["output_dir"], "train_results.txt")
         with open(train_results_file, "w") as writer:
@@ -135,7 +137,6 @@ class TrainingManager:
         self.trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
         self.logger.info("Saving done!")
 
-        available_gpus = [i for i in range(torch.cuda.device_count())]
         unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])    
         eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
         eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)

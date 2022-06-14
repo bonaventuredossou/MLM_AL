@@ -59,7 +59,7 @@ class TrainDataset(Dataset):
 
             encoding = tokenizer(
                 lines,
-                max_length=256,
+                max_length=tokenizer.model_max_length,
                 add_special_tokens=True,
                 truncation=True,
                 padding=True,
@@ -188,7 +188,7 @@ class EvalDataset(Dataset):
             if (len(line.split()) > MIN_NUM_TOKENS and not line.isspace())
         ]
         encoding = tokenizer(
-            lines, max_length=256, add_special_tokens=True, truncation=True, padding=True,
+            lines, max_length=tokenizer.model_max_length, add_special_tokens=True, truncation=True, padding=True,
         )
         self.examples = np.array(
             [{"input_ids": torch.tensor(ids, dtype=torch.long)} for ids in encoding["input_ids"]]

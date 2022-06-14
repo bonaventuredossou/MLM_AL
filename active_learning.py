@@ -40,7 +40,7 @@ def save_list(lines, filename):
 
 
 def main():
-    active_learning_steps = 5
+    active_learning_steps = 10
     if not os.path.exists('data'):
         os.mkdir('data')
 
