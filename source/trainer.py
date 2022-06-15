@@ -136,6 +136,7 @@ class TrainingManager:
         self.trainer.save_model()
         self.trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
         self.logger.info("Saving done!")
+        print('--------------------- Saving Done! -------------------------')
 
         unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])    
         eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
@@ -234,7 +235,7 @@ class TrainingManager:
         Checks if we want to resume the training or not, and launches the appropriate option.
         """
         self._set_data_collator_class()
-        self.model_path = self.train_config["output_dir"]
+        self.model_path = None
         print('Building the model from scratch...')
         self.logger.info("Training from scratch...")
         self._build_tokenizer()
