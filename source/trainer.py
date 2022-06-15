@@ -180,7 +180,8 @@ class TrainingManager:
         # we mask the tokens
         sentences_samples_from_mlm = []
         # randomly choosing as many sentences as in held-out dataset
-        for chosen_sentence in random.choices(sentences, k = len(sentences)):
+        n_sentences = len(sentences) if len(sentences) <= 10000 else 2000
+        for chosen_sentence in random.choices(sentences, k = n_sentences):
             sentence_split = chosen_sentence.strip().split()
             n_tokens = int(len(sentence_split) * MLM_PROBABILITY) + 1
 
