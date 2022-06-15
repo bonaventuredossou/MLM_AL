@@ -35,6 +35,7 @@ DEFAULT_XLM_MODEL_SIZE = "xlm-roberta-large"
 MLM_PROBABILITY = 0.15
 EVAL_FILE_PATTERN = "eval.*"
 MIN_LENGTH = 5
+MAX_LENGTH = 256
 transformers.logging.set_verbosity_debug()
 
 
