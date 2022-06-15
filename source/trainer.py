@@ -114,7 +114,8 @@ class TrainingManager:
         self.logger.info("Starting Training...")
         data_collator = self.collator_class(tokenizer=self.tokenizer, mlm_probability=MLM_PROBABILITY)
         training_args = TrainingArguments(**self.train_config)
-        self.model = self.model.to('cuda')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = self.model.to(device)
         self.trainer = CustomTrainer(
             model=self.model,
             args=training_args,
@@ -144,6 +145,7 @@ class TrainingManager:
         for file_path in eval_file_paths:
             language = file_path.suffix.replace(".", "")
             self.logger.info('Adding new samples to {}'.format(language))
+            print('Adding new samples to {}'.format(language))
             new_sentences = self.generate_new_outputs(file_path, unmasker)
             language_data = pd.read_csv(dataset.format(language), sep='\t')
             updated_language_data = language_data.input.tolist() + new_sentences
@@ -175,7 +177,7 @@ class TrainingManager:
             for sentence in dataset_samples.readlines():
                 sentence = sentence.strip('\n')
 
-                if len(sentence.split()) >= MIN_LENGTH and not sentence.isspace():
+                if len(sentence.split()) >= MIN_LENGTH and len(sentence.split()) < MAX_LENGTH and not sentence.isspace():
                     sentences.append(sentence.strip())
 
         # we mask the tokens
