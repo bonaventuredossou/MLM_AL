@@ -17,9 +17,14 @@ experiment_name = "active_learning_lm"
 EXPERIMENT_PATH = "experiments"
 EXPERIMENT_CONFIG_NAME = "config.yml"
 
+if not os.path.exists(EXPERIMENT_PATH):
+    os.mkdir(EXPERIMENT_PATH)
+
 experiment_path = os.path.join(EXPERIMENT_PATH, experiment_name)
+
 if not os.path.exists(experiment_path):
     os.mkdir(experiment_path)
+
 experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
 
 
@@ -40,7 +45,7 @@ def save_list(lines, filename):
 
 
 def main():
-    active_learning_steps = 3
+    active_learning_steps = 10
     if not os.path.exists('data'):
         os.mkdir('data')
 
