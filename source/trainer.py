@@ -233,7 +233,7 @@ class TrainingManager:
         Checks if we want to resume the training or not, and launches the appropriate option.
         """
         self._set_data_collator_class()
-        self.model_path = None
+        self.model_path = self.train_config["output_dir"]
         print('Building the model from scratch...')
         self.logger.info("Training from scratch...")
         self._build_tokenizer()
