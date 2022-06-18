@@ -14,7 +14,7 @@ from source.utils import load_config
 
 experiment_name = "active_learning_lm"
 
-EXPERIMENT_PATH = "/content/drive/My Drive/LMs_ALs/experiments"
+EXPERIMENT_PATH = "/content/drive/My Drive/LMs_ALs/experiments_500k"
 EXPERIMENT_CONFIG_NAME = "config.yml"
 
 if not os.path.exists(EXPERIMENT_PATH):
@@ -27,7 +27,6 @@ if not os.path.exists(experiment_path):
 
 experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
 
-
 flags.DEFINE_string("config_path", "models_configurations/large.yml", "Config file path")
 
 config = load_config("models_configurations/large.yml")
@@ -36,6 +35,7 @@ langs = ['amh', 'hau', 'lug', 'luo', 'pcm', 'sna', 'tsn', 'wol', 'ewe', 'bam', '
          'fon', 'ibo', 'kin', 'swa', 'xho', 'yor', 'oro']
 
 dataset = 'dataset/{}_mono.tsv'
+
 
 def save_list(lines, filename):
     data = '\n'.join(str(_).strip() for _ in lines)
@@ -66,12 +66,12 @@ def main():
             # shuffle the training set for this active learning round
             current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
             current_dataset = current_dataset.sample(frac=1)
-            train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)            
+            train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)
             all_evals += test.input.tolist()
             save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
             save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
 
-        save_list(all_evals, 'data/eval/all_eval.txt'.format(lang))
+        save_list(all_evals, 'data/eval/all_eval.txt')
         trainer = TrainingManager(config, experiment_path, step)
         trainer.train()
 
