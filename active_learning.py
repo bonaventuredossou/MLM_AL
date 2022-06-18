@@ -61,7 +61,7 @@ def main():
     for step in range(1, active_learning_steps + 1):
         print('Active Learning Step: {}'.format(step))
         all_evals = []
-        # build datasets for the current AL round    
+        # build datasets for the current AL round
         for lang in langs:
             # shuffle the training set for this active learning round
             current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
