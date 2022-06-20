@@ -1,5 +1,5 @@
 model:
-  tokenizer_path: tokenizer_512k
+  tokenizer_path: tokenizer_250k
   layer_norm_eps: 1.0e-05
   output_past: True
   type_vocab_size: 1
