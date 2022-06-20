@@ -27,7 +27,8 @@ def main():
     print('Building SPM')
     spm.SentencePieceTrainer.Train(input='../data/txt/all_train.txt', model_prefix='sentencepiece.bpe',
                                    vocab_size=250000,
-                                   character_coverage=0.9995, model_type='bpe')
+                                   character_coverage=0.9995, model_type='bpe',
+                                   user_defined_symbols="<pad>, <mask>")
 
 
 if __name__ == '__main__':
