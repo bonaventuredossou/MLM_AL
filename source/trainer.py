@@ -140,7 +140,7 @@ class TrainingManager:
         self.logger.info("Saving done!")
         print('--------------------- Saving Done! -------------------------')
 
-        unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])    
+        unmasker = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=available_gpus[-1])
         eval_dataset_path = Path(self.data_config["eval"]["per_lang"])
         eval_file_paths = eval_dataset_path.glob(EVAL_FILE_PATTERN)
         for file_path in eval_file_paths:
@@ -178,14 +178,15 @@ class TrainingManager:
             for sentence in dataset_samples.readlines():
                 sentence = sentence.strip('\n')
 
-                if len(sentence.split()) >= MIN_LENGTH and len(sentence.split()) < MAX_LENGTH and not sentence.isspace():
+                if len(sentence.split()) >= MIN_LENGTH and len(
+                        sentence.split()) < MAX_LENGTH and not sentence.isspace():
                     sentences.append(sentence.strip())
 
         # we mask the tokens
         sentences_samples_from_mlm = []
         # randomly choosing as many sentences as in held-out dataset
         n_sentences = len(sentences) if len(sentences) <= 10000 else 2000
-        for chosen_sentence in random.choices(sentences, k = n_sentences):
+        for chosen_sentence in random.choices(sentences, k=n_sentences):
             sentence_split = chosen_sentence.strip().split()
             n_tokens = int(len(sentence_split) * MLM_PROBABILITY) + 1
 
@@ -199,7 +200,7 @@ class TrainingManager:
                     prompt = prompt.strip()
                 else:
                     break
-            sentences_samples_from_mlm.append(prompt)        
+            sentences_samples_from_mlm.append(prompt)
         return sentences_samples_from_mlm
 
     def evaluate(self) -> None:
