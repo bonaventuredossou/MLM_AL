@@ -26,7 +26,7 @@ training:
   save_steps: 50000
   save_total_limit: 1
   learning_rate: 0.001
-  warmup_steps: 40000
+  warmup_steps: 50000
 
 data:
   train: data/train/
