@@ -23,10 +23,10 @@ training:
   per_device_eval_batch_size: 4
   dataloader_num_workers: 6
   fp16: True
-  save_steps: 1000
+  save_steps: 5000
   save_total_limit: 1
   learning_rate: 0.0001
-  warmup_steps: 4000
+  warmup_steps: 1000
 
 data:
   train: data/train/
