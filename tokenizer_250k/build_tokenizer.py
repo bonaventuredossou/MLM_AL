@@ -23,9 +23,6 @@ def main():
         # shuffle the training set for this active learning round
         current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
         current_dataset = current_dataset.sample(frac=1)
-
-        # x_train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)
-        # train, valid = train_test_split(x_train, test_size=0.1, random_state=1234)
         all_pds.append(current_dataset)
 
     concats = pd.concat(all_pds)
