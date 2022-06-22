@@ -14,7 +14,7 @@ model:
   initializer_range: 0.02
 
 training:
-  gradient_accumulation_steps: 8
+  gradient_accumulation_steps: 2
   ignore_data_skip: False
   overwrite_output_dir: False
   seed: 1234
