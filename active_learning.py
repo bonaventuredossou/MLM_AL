@@ -14,7 +14,7 @@ from source.utils import load_config
 
 experiment_name = "active_learning_lm"
 
-EXPERIMENT_PATH = "/content/drive/My Drive/LMs_ALs/experiments_300k"
+EXPERIMENT_PATH = "experiments_500k"
 EXPERIMENT_CONFIG_NAME = "config.yml"
 
 if not os.path.exists(EXPERIMENT_PATH):
