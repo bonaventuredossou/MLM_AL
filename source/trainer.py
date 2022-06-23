@@ -57,8 +57,6 @@ class TrainingManager:
         self.train_config = config["training"]
         self.train_config["output_dir"] = experiment_path
         self.active_learning_step = active_learning_step
-        if self.active_learning_step == 1:
-            self.train_config['max_steps'] = 140000
         self.logger = create_logger(os.path.join(experiment_path, "train_log.txt"))
         # modifying huggingface logger to log into a file
         hf_logger = transformers.logging.get_logger()
@@ -84,14 +82,10 @@ class TrainingManager:
         """
         Build model from specified model config.
         """
-        if self.active_learning_step == 1:
-            saved_path = "/home/femipancrace_dossou/MLM_AL/experiments_500k/active_learning_lm/checkpoint-160000/optimizer.pt"
-            self.model = XLMRobertaForMaskedLM.from_pretrained(saved_path)
-        else:
-            self.logger.info("Building model...")
-            self._update_model_config()
-            xlm_roberta_config = XLMRobertaConfig(**self.model_config)
-            self.model = XLMRobertaForMaskedLM(xlm_roberta_config)
+        self.logger.info("Building model...")
+        self._update_model_config()
+        xlm_roberta_config = XLMRobertaConfig(**self.model_config)
+        self.model = XLMRobertaForMaskedLM(xlm_roberta_config)
         self.logger.info(f"Model built with num parameters: {self.model.num_parameters()}")
 
     def _build_datasets(self) -> None:
