@@ -85,7 +85,7 @@ class TrainingManager:
         Build model from specified model config.
         """
         if self.active_learning_step == 1:
-            saved_path = "/home/femipancrace_dossou/MLM_AL/experiments_500k/checkpoint-160000"
+            saved_path = "/home/femipancrace_dossou/MLM_AL/experiments_500k/active_learning_lm/checkpoint-160000/optimizer.pt"
             self.model = XLMRobertaForMaskedLM.from_pretrained(saved_path)
         else:
             self.logger.info("Building model...")
