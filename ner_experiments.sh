@@ -25,7 +25,7 @@ TOK_PATH=$tokenizer_path
 
 declare -a arr=("amh" "hau" "ibo" "kin" "lug" "luo" "pcm" "swa" "wol" "yor")
 
-for SEED in 1
+for SEED in 1 2 3 4 5
 do
     output_dir=/home/femipancrace_dossou/MLM_AL/ner_results/"${experiment_name}_ner_results_${SEED}"
     mkdir $PWD/$output_dir
