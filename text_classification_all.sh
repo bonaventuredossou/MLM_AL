@@ -9,10 +9,10 @@ tokenizer_path="/home/femipancrace_dossou/MLM_AL/tokenizer_250k" # specify token
 
 MODEL_PATH=$model_path
 TOK_PATH=$tokenizer_path
-HAUSA_DATA="hausa_classification_data"
-YORUBA_DATA="yoruba_classification_data"
-YOSM_DATA="yosm"
-NAIJA_YOSM_DATA="naija_senti_yosm"
+HAUSA_DATA="/home/femipancrace_dossou/MLM_AL/hausa_classification_data"
+YORUBA_DATA="/home/femipancrace_dossou/MLM_AL/yoruba_classification_data"
+YOSM_DATA="/home/femipancrace_dossou/MLM_AL/yosm"
+NAIJA_YOSM_DATA="/home/femipancrace_dossou/MLM_AL/naija_senti_yosm"
 
 # Evaluate on Text Classification
 
@@ -21,7 +21,7 @@ export PYTHONPATH=$PWD
 for SEED in 1
 do 
 
-    output_dir=classification_results/"${MODEL_PATH}_hausa_${SEED}"
+    output_dir=/home/femipancrace_dossou/MLM_AL/classification_results/"${MODEL_PATH}_hausa_${SEED}"
     python classification_scripts/classification_trainer.py --data_dir $HAUSA_DATA \
     --model_dir $MODEL_PATH \
     --tok_dir $TOK_PATH \
@@ -30,7 +30,7 @@ do
     --seed $SEED \
     --max_seq_length 256
 
-    output_dir=classification_results/"${MODEL_PATH}_yoruba_${SEED}"
+    output_dir=/home/femipancrace_dossou/MLM_AL/classification_results/"${MODEL_PATH}_yoruba_${SEED}"
     python classification_scripts/classification_trainer.py --data_dir $YORUBA_DATA \
     --model_dir $MODEL_PATH \
     --tok_dir $TOK_PATH \
@@ -39,7 +39,7 @@ do
     --seed $SEED \
     --max_seq_length 256
 
-    output_dir=classification_results/"${MODEL_PATH}_YOSM_${SEED}"
+    output_dir=/home/femipancrace_dossou/MLM_AL/classification_results/"${MODEL_PATH}_YOSM_${SEED}"
     python classification_scripts/classification_sentiment.py --data_dir $YOSM_DATA \
     --model_dir $MODEL_PATH \
     --tok_dir $TOK_PATH \
@@ -48,7 +48,7 @@ do
     --seed $SEED \
     --max_seq_length 256
 
-    output_dir=classification_results/"${MODEL_PATH}_NAIJA_YOSM_${SEED}"
+    output_dir=/home/femipancrace_dossou/MLM_AL/classification_results/"${MODEL_PATH}_NAIJA_YOSM_${SEED}"
     python classification_scripts/classification_sentiment.py --data_dir $NAIJA_YOSM_DATA \
     --model_dir $MODEL_PATH \
     --tok_dir $TOK_PATH \
