@@ -32,7 +32,7 @@ do
 
     for i in "${arr[@]}"
     do
-        OUTPUT_DIR=$PWD/$output_dir/"$i"
+        OUTPUT_DIR=$output_dir/"$i"
         DATA_DIR=$ner_dataset/"$i"
         python ner_scripts/train_ner.py --data_dir $DATA_DIR \
         --model_type nil \
