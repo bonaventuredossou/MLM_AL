@@ -13,8 +13,8 @@ ner_model_path="${experiment_name}_ner_model"
 
 mkdir $ner_model_path
 
-# cp $model_path/pytorch_model.bin $PWD/$ner_model_path/
-# cp $model_path/config.json $PWD/$ner_model_path/
+cp $model_path/pytorch_model.bin $PWD/$ner_model_path/
+cp $model_path/config.json $PWD/$ner_model_path/
 
 MAX_LENGTH=164
 MODEL_PATH=$ner_model_path
