@@ -43,9 +43,9 @@ from transformers import XLMRobertaConfig
 from transformers import XLMRobertaForTokenClassification
 from transformers import XLMRobertaTokenizer
 
-from .ner_utils import convert_examples_to_features
-from .ner_utils import get_labels
-from .ner_utils import read_examples_from_file
+from ner_utils import convert_examples_to_features
+from ner_utils import get_labels
+from ner_utils import read_examples_from_file
 
 try:
     from torch.utils.tensorboard import SummaryWriter
