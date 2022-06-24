@@ -20,7 +20,7 @@ MAX_LENGTH=164
 MODEL_PATH=$ner_model_path
 BATCH_SIZE=16
 NUM_EPOCHS=50
-SAVE_STEPS=None
+SAVE_STEPS=1000000
 TOK_PATH=$tokenizer_path
 
 declare -a arr=("amh" "hau" "ibo" "kin" "lug" "luo" "pcm" "swa" "wol" "yor")
