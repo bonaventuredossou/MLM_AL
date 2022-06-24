@@ -11,16 +11,16 @@ ner_dataset="/home/femipancrace_dossou/MLM_AL/ner_data"
 
 ner_model_path="${experiment_name}_ner_model"
 
-mkdir $PWD/$ner_model_path
+mkdir $ner_model_path
 
-cp $model_path/pytorch_model.bin $PWD/$ner_model_path/
-cp $model_path/config.json $PWD/$ner_model_path/
+# cp $model_path/pytorch_model.bin $PWD/$ner_model_path/
+# cp $model_path/config.json $PWD/$ner_model_path/
 
 MAX_LENGTH=164
 MODEL_PATH=$ner_model_path
 BATCH_SIZE=16
 NUM_EPOCHS=50
-SAVE_STEPS=1000
+SAVE_STEPS=None
 TOK_PATH=$tokenizer_path
 
 declare -a arr=("amh" "hau" "ibo" "kin" "lug" "luo" "pcm" "swa" "wol" "yor")
@@ -28,7 +28,7 @@ declare -a arr=("amh" "hau" "ibo" "kin" "lug" "luo" "pcm" "swa" "wol" "yor")
 for SEED in 1 2 3 4 5
 do
     output_dir=/home/femipancrace_dossou/MLM_AL/ner_results/"${experiment_name}_ner_results_${SEED}"
-    mkdir $PWD/$output_dir
+    mkdir $output_dir
 
     for i in "${arr[@]}"
     do
