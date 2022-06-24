@@ -27,7 +27,7 @@ declare -a arr=("amh" "hau" "ibo" "kin" "lug" "luo" "pcm" "swa" "wol" "yor")
 
 for SEED in 1 2 3 4 5
 do
-    output_dir=/home/femipancrace_dossou/MLM_AL/ner_results/"${experiment_name}_ner_results_${SEED}"
+    output_dir="${experiment_name}_ner_results_${SEED}"
     mkdir $output_dir
 
     for i in "${arr[@]}"
