@@ -18,7 +18,7 @@ NAIJA_YOSM_DATA="/home/femipancrace_dossou/MLM_AL/naija_senti_yosm"
 
 export PYTHONPATH=$PWD
 
-for SEED in 1
+for SEED in 1 2 3 4 5
 do 
 
     output_dir=/home/femipancrace_dossou/MLM_AL/classification_results/"${MODEL_PATH}_hausa_${SEED}"
