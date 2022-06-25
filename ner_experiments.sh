@@ -23,7 +23,7 @@ NUM_EPOCHS=50
 SAVE_STEPS=1000000
 TOK_PATH=$tokenizer_path
 
-declare -a arr=("amh" "hau" "ibo" "kin" "lug" "luo" "pcm" "swa" "wol" "yor")
+declare -a arr=("kin" "lug" "luo" "pcm" "amh" "hau" "ibo" "swa" "wol" "yor")
 
 for SEED in 1
 do
@@ -45,7 +45,6 @@ do
         --per_gpu_eval_batch_size $BATCH_SIZE \
         --save_steps $SAVE_STEPS \
         --seed $SEED \
-        --do_finetune \
         --do_train \
         --do_eval \
         --do_predict
