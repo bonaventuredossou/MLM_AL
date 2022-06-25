@@ -25,7 +25,7 @@ TOK_PATH=$tokenizer_path
 
 declare -a arr=("amh" "hau" "ibo" "kin" "lug" "luo" "pcm" "swa" "wol" "yor")
 
-for SEED in 1 2 3 4 5
+for SEED in 1
 do
     output_dir="${experiment_name}_ner_results_${SEED}"
     mkdir $output_dir
@@ -45,6 +45,7 @@ do
         --per_gpu_eval_batch_size $BATCH_SIZE \
         --save_steps $SAVE_STEPS \
         --seed $SEED \
+        --do_finetune \
         --do_train \
         --do_eval \
         --do_predict
