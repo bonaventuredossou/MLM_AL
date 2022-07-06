@@ -64,20 +64,20 @@ def main(args):
             current_dataset = pd.read_csv(dataset.format(lang), sep='\t')
             current_dataset = current_dataset.sample(frac=1)
             train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)
-            all_evals += test.input.tolist()
-            save_list(train.input.tolist(), f'{args.data_folder}/train/train.{lang}')
-            save_list(test.input.tolist(), f'{args.data_folder}/eval/eval.{lang}')
+            all_evals += test.values.tolist()
+            save_list(train.values.tolist(), f'{args.data_folder}/train/train.{lang}')
+            save_list(test.values.tolist(), f'{args.data_folder}/eval/eval.{lang}')
 
         save_list(all_evals, f'{args.data_folder}/eval/all_eval.txt')
 
-        # Create a data_config dictionary. So that we do not have to put it in config.yml 
+        # Creating a data_config dictionary so that we do not have to put it in config.yml 
         data_config = {
             'train': f'{args.data_folder}/train/',
              'eval':{
                 'all': f'{args.data_folder}/eval/all_eval.txt', 
                 'per_lang': f'{args.data_folder}/eval/'
                         }
-        }
+                    }
 
         trainer = TrainingManager(config, experiment_path, step,data_config)
         trainer.train()
