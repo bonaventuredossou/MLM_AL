@@ -95,7 +95,7 @@ class TrainingManager:
         self.logger.info("Building datasets...")
         batch_size = self.train_config["per_device_train_batch_size"]
         lang_sampling_factor = 1.0
-        self.logger.info(f"Building train dataset from {self.data_config['train']}...")
+        self.logger.info(f"Building train dataset from `{self.data_config['train']}`.")
         self.train_dataset = TrainDataset(
             self.tokenizer,
             self.data_config["train"],
@@ -149,7 +149,7 @@ class TrainingManager:
             print('Adding new samples to {}'.format(language))
             new_sentences = self.generate_new_outputs(file_path, unmasker)
             language_data = pd.read_csv(dataset.format(language), sep='\t')
-            updated_language_data = language_data.input.tolist() + new_sentences
+            updated_language_data = language_data.values.tolist() + new_sentences
             frame = pd.DataFrame()
             frame['input'] = updated_language_data
             frame.drop_duplicates(inplace=True)
@@ -239,7 +239,7 @@ class TrainingManager:
         Checks if we want to resume the training or not, and launches the appropriate option.
         """
         self._set_data_collator_class()
-        self.model_path = None
+        self.model_path = os.path.join(self.train_config["output_dir"],f'al_{self.active_learning_step}')
         print('Building the model from scratch...')
         self.logger.info("Training from scratch...")
         self._build_tokenizer()
