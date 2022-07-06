@@ -51,8 +51,8 @@ class TrainingManager:
         experiment_path: path specified to save training outputs
     """
 
-    def __init__(self, config: Dict[str, Any], experiment_path: str, active_learning_step: int) -> None:
-        self.data_config = config["data"]
+    def __init__(self, config: Dict[str, Any], experiment_path: str, active_learning_step: int, data_config: dict) -> None:
+        self.data_config = data_config
         self.model_config = config["model"]
         self.train_config = config["training"]
         self.train_config["output_dir"] = experiment_path

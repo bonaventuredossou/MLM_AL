@@ -27,9 +27,3 @@ training:
   save_total_limit: 1
   learning_rate: 0.0001
   warmup_steps: 40000
-
-data:
-  train: data/train/
-  eval:
-    all: data/eval/all_eval.txt 
-    per_lang: data/eval/

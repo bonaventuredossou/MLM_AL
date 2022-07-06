@@ -5,36 +5,9 @@ import os
 from sklearn.model_selection import train_test_split
 import os
 import shutil
-
 from transformers import pipeline
-from absl import flags
-
 from source.trainer import TrainingManager
 from source.utils import load_config
-
-experiment_name = "active_learning_lm"
-
-EXPERIMENT_PATH = "experiments_500k"
-EXPERIMENT_CONFIG_NAME = "config.yml"
-
-if not os.path.exists(EXPERIMENT_PATH):
-    os.mkdir(EXPERIMENT_PATH)
-
-experiment_path = os.path.join(EXPERIMENT_PATH, experiment_name)
-
-if not os.path.exists(experiment_path):
-    os.mkdir(experiment_path)
-
-experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
-
-flags.DEFINE_string("config_path", "models_configurations/large.yml", "Config file path")
-
-config = load_config("models_configurations/large.yml")
-
-langs = ['amh', 'hau', 'lug', 'luo', 'pcm', 'sna', 'tsn', 'wol', 'ewe', 'bam', 'bbj', 'mos', 'zul', 'lin', 'nya', 'twi',
-         'fon', 'ibo', 'kin', 'swa', 'xho', 'yor', 'oro']
-
-dataset = 'dataset/{}_mono.tsv'
 
 
 def save_list(lines, filename):
@@ -43,20 +16,44 @@ def save_list(lines, filename):
     file.write(data)
     file.close()
 
+def main(args):
+    experiment_name = args.experiment_name
 
-def main():
-    active_learning_steps = 3
-    if not os.path.exists('data'):
-        os.mkdir('data')
+    EXPERIMENT_PATH = args.experiment_path
+    EXPERIMENT_CONFIG_NAME = args.experiment_config_name
 
-    if not os.path.exists('data/train'):
-        os.mkdir('data/train')
+    if not os.path.exists(EXPERIMENT_PATH):
+        os.mkdir(EXPERIMENT_PATH)
 
-    if not os.path.exists('data/eval'):
-        os.mkdir('data/eval')
+    experiment_path = os.path.join(EXPERIMENT_PATH, experiment_name)
 
-    if not os.path.exists('data/txt'):
-        os.mkdir('data/txt')
+    if not os.path.exists(experiment_path):
+        os.mkdir(experiment_path)
+
+    experiment_config_path = os.path.join(experiment_path, EXPERIMENT_CONFIG_NAME)
+
+
+    config = load_config(args.config_path)
+
+    langs = ['amh', 'hau', 'lug', 'luo', 'pcm', 'sna', 'tsn', 'wol', 'ewe', 'bam', 'bbj', 'mos', 'zul', 'lin', 'nya', 'twi',
+            'fon', 'ibo', 'kin', 'swa', 'xho', 'yor', 'oro']
+
+    dataset = 'dataset/{}_mono.tsv'
+
+
+    active_learning_steps = args.active_learning_steps
+    
+    if not os.path.exists(args.data_folder):
+        os.mkdir(args.data_folder)
+
+    if not os.path.exists(f'{args.data_folder}/train'):
+        os.mkdir(f'{args.data_folder}/train')
+
+    if not os.path.exists(f'{args.data_folder}/eval'):
+        os.mkdir(f'{args.data_folder}/eval')
+
+    if not os.path.exists(f'{args.data_folder}/txt'):
+        os.mkdir(f'{args.data_folder}/txt')
 
     for step in range(1, active_learning_steps + 1):
         print('Active Learning Step: {}'.format(step))
@@ -68,13 +65,47 @@ def main():
             current_dataset = current_dataset.sample(frac=1)
             train, test = train_test_split(current_dataset, test_size=0.2, random_state=1234)
             all_evals += test.input.tolist()
-            save_list(train.input.tolist(), 'data/train/train.{}'.format(lang))
-            save_list(test.input.tolist(), 'data/eval/eval.{}'.format(lang))
+            save_list(train.input.tolist(), f'{args.data_folder}/train/train.{lang}')
+            save_list(test.input.tolist(), f'{args.data_folder}/eval/eval.{lang}')
 
-        save_list(all_evals, 'data/eval/all_eval.txt')
-        trainer = TrainingManager(config, experiment_path, step)
+        save_list(all_evals, f'{args.data_folder}/eval/all_eval.txt')
+
+        # Create a data_config dictionary. So that we do not have to put it in config.yml 
+        data_config = {
+            'train': f'{args.data_folder}/train/',
+             'eval':{
+                'all': f'{args.data_folder}/eval/all_eval.txt', 
+                'per_lang': f'{args.data_folder}/eval/'
+                        }
+        }
+
+        trainer = TrainingManager(config, experiment_path, step,data_config)
         trainer.train()
 
 
 if __name__ == '__main__':
-    main()
+    from argparse import ArgumentParser
+    parser = ArgumentParser('MLMT_AL')
+
+    parser.add_argument('--experiment_name', type=str, default="active_learning_lm",
+        help="Name of experiment. (default: `active_learning_lm`)")
+    
+    parser.add_argument('--experiment_path', type=str, default='experiments_500ks',
+        help='directory path to save all experiments (default: %(default)s)')
+    
+    parser.add_argument('--experiment_config_name', type=str, default='config.yml',
+        help='Config YAML file name (default: %(default)s)')
+
+    parser.add_argument('--active_learning_steps', type=int, default=3,
+        help='number of active learning steps (default: %(default)s)')
+
+    parser.add_argument('--data_folder', type=str, default='data',
+        help='Folder to save all the datasets generated during the AL experiements (default: %(default)s)')
+
+    parser.add_argument('--config_path', type=str, default='models_configurations/large.yml',
+        help='Path to the configuration file for the experiments. (default: %(default)s)')
+
+
+    args = parser.parse_args() 
+
+    main(args)    
