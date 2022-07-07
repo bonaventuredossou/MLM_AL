@@ -18,7 +18,7 @@ module load python/3.7 cuda/10.2/cudnn/7.6
 
 source /home/mila/c/chris.emezue/scratch/mlmal/env/bin/activate
 python active_learning.py \
-    --experimet_path /home/mila/c/chris.emezue/scratch/mlmal/experiments_500ks \
+    --experiment_path /home/mila/c/chris.emezue/scratch/mlmal/experiments_500ks \
     --data_folder /home/mila/c/chris.emezue/scratch/mlmal/data \
     active_learning_steps 5
 
