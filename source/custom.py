@@ -26,10 +26,18 @@ from transformers import XLMRobertaTokenizer
 from source.utils import load_config
 from source.utils import create_logger
 
+
 class CustomTrainer(Trainer):
     def __init__(self, **kwargs) -> None:
         super(CustomTrainer, self).__init__(**kwargs)
 
+    # ================================== TODO =====================================
+    # Weighted loss (see section 6 of our paper)
+    # this can be done by customizing the `compute_loss` function
+    # as attempted here:
+    # https://github.com/bonaventuredossou/MLM_AL/commit/6608752081b280ea9fbd836579321a319a23a62c
+    # The attempt above was with evaluation samples, need to do it with training samples
+    # =============================================================================
     def get_train_dataloader(self) -> DataLoader:
         """
         Overwrites original method to use a worker init function.
@@ -50,7 +58,7 @@ class CustomTrainer(Trainer):
 
     @staticmethod
     def get_worker_shard(
-        examples: Dict[str, np.ndarray], num_workers: int, worker_id: int
+            examples: Dict[str, np.ndarray], num_workers: int, worker_id: int
     ) -> Tuple[Dict[str, np.ndarray], Dict[str, int]]:
         """
         for each language in the dataset, divide the language dataset into approx num_workers shards
