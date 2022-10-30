@@ -23,7 +23,9 @@ NUM_EPOCHS=50
 SAVE_STEPS=1000000
 TOK_PATH=$tokenizer_path
 
-declare -a arr=("kin" "lug" "luo" "pcm" "amh" "hau" "ibo" "swa" "wol" "yor")
+declare -a arr=("kin" "lug" "luo" "pcm" "amh" "hau" "ibo" "swa" "wol" "yor" \
+                "bam" "bbj" "ewe" "fon" "hau" "ibo" "kin" "lug" "mos" "nya"\
+                "pcm" "sna" "swa" "tsn" "twi" "wol" "xho" "yor" "zul")
 
 for SEED in 1 2 3 4 5
 do
