@@ -6,7 +6,7 @@ AfroLM has been pretrained from scratch on 23 African Languages: Amharic, Afan O
 
 AfroLM was evaluated on MasakhaNER1.0 (10 African Languages) and MasakhaNER2.0 (21 African Languages) datasets; on text classification and sentiment analysis. AfroLM outperformed AfriBERTa, mBERT, and XLMR-base, and was very competitive with AfroXLMR. AfroLM is also very data efficient because it was pretrained on a dataset 14x+ smaller than its competitors' datasets. Below is the average of performance of various models, across various datasets. Please consult our paper for more language-level performance.
 
-Model | MasakhaNER | MasakhaNER2.0 (11 languages) | Text Classification (Yoruba/Hausa) | Sentiment Analysis (YOSM) | OOD Sentiment Analysis (Twitter -> YOSM) |
+Model | MasakhaNER | MasakhaNER2.0* | Text Classification (Yoruba/Hausa) | Sentiment Analysis (YOSM) | OOD Sentiment Analysis (Twitter -> YOSM) |
 |:---: |:---: |:---: | :---: |:---: | :---: |
 `AfroLM-Large` | **80.13** | **83.26** | **82.90/91.00** | **85.40** | **68.70** |
 `AfriBERTa` | 79.10 | 81.31 | 83.22/90.86 | 82.70 | 65.90 |
@@ -14,6 +14,7 @@ Model | MasakhaNER | MasakhaNER2.0 (11 languages) | Text Classification (Yoruba/
 `XLMR-base` | 79.16 | 83.09 | --- | --- | --- |
 `AfroXLMR-base` | `81.90` | `84.55` | --- | --- | --- |
 
+- (*) The evaluation was made on the 11 additional languages of the dataset.
 ## Pretrained Models and Dataset
 
 **Models:**: [AfroLM-Large](https://huggingface.co/bonadossou/afrolm_active_learning) and **Dataset**: [AfroLM Dataset](https://huggingface.co/datasets/bonadossou/afrolm_active_learning_dataset)
