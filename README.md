@@ -24,6 +24,14 @@ Model | MasakhaNER | MasakhaNER2.0* | Text Classification (Yoruba/Hausa) | Senti
 
 **Models:**: [AfroLM-Large](https://huggingface.co/bonadossou/afrolm_active_learning) and **Dataset**: [AfroLM Dataset](https://huggingface.co/datasets/bonadossou/afrolm_active_learning_dataset)
 
+## HuggingFace usage of AfroLM-large
+```python
+from transformers import AutoTokenizer, AutoModelForTokenClassification
+model = AutoModelForTokenClassification.from_pretrained("bonadossou/afrolm_active_learning")
+tokenizer = AutoTokenizer.from_pretrained("bonadossou/afrolm_active_learning")
+tokenizer.model_max_length = 256
+```
+
 ## Reproducing our result: Training and Evaluation
 
 - To train the network, run `python active_learning.py`. You can also wrap it around a `bash` script.
