@@ -41,7 +41,7 @@ tokenizer.model_max_length = 256
     
 
 ## Citation
-We will share the proceeding citation this as soon as possible. Stay tuned. If you have liked our work, give it a star.
+We will share the proceeding citation as soon as possible. Stay tuned, and if you have liked our work, give it a star.
 
 ## Reach out
 
