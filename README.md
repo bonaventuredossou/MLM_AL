@@ -20,6 +20,7 @@ Model | MasakhaNER | MasakhaNER2.0* | Text Classification (Yoruba/Hausa) | Senti
 `AfroXLMR-base` | `81.90` | `84.55` | --- | --- | --- |
 
 - (*) The evaluation was made on the 11 additional languages of the dataset.
+- Bold numbers represent the performance of the model with the **smallest pretrained data**.
 ## Pretrained Models and Dataset
 
 **Models:**: [AfroLM-Large](https://huggingface.co/bonadossou/afrolm_active_learning) and **Dataset**: [AfroLM Dataset](https://huggingface.co/datasets/bonadossou/afrolm_active_learning_dataset)
