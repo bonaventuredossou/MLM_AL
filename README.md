@@ -1,6 +1,6 @@
 # AfroLM: A Self-Active Learning-based Multilingual Pretrained Language Model for 23 African Languages
 
-This repository contains the code for our paper `AfroLM: A Self-Active Learning-based Multilingual Pretrained Language Model for 23 African Languages` which will appear at the third Simple and Efficient Natural Language Processing, at EMNLP 2022.
+This repository contains the code for our paper [`AfroLM: A Self-Active Learning-based Multilingual Pretrained Language Model for 23 African Languages`](https://arxiv.org/pdf/2211.03263.pdf) which will appear at the third Simple and Efficient Natural Language Processing, at EMNLP 2022.
 
 ## Our self-active learning framework
 ![Model](afrolm.png)
@@ -42,8 +42,17 @@ tokenizer.model_max_length = 256
     
 
 ## Citation
-We will share the proceeding citation as soon as possible. Stay tuned, and if you have liked our work, give it a star. You can for now access a version of the paper [here](https://drive.google.com/file/d/1HMtEyeHlwlnNEZpB6ih1CaSsXxVH-3OH/view?usp=share_link)
+ - **Arxiv Citation**:
+ 
+ ``@misc{dossou2022afrolm,
+      title={AfroLM: A Self-Active Learning-based Multilingual Pretrained Language Model for 23 African Languages}, 
+      author={Bonaventure F. P. Dossou and Atnafu Lambebo Tonja and Oreen Yousuf and Salomey Osei and Abigail Oppong and Iyanuoluwa Shode and Oluwabusayo Olufunke Awoyomi and Chris Chinenye Emezue},
+      year={2022},
+      eprint={2211.03263},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}}``
 
+We will share the official proceeding citation as soon as possible. Stay tuned, and if you have liked our work, give it a star.
 ## Reach out
 
 Do you have a question? Please create an issue and we will reach out as soon as possible
