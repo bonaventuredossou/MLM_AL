@@ -33,6 +33,8 @@ tokenizer = XLMRobertaTokenizer.from_pretrained("bonadossou/afrolm_active_learni
 tokenizer.model_max_length = 256
 ```
 
+`Autotokenizer` class does not successfully load our tokenizer. So we recommend to use directly the `XLMRobertaTokenizer` class. Depending on your task, you will load the according mode of the model. Read the [XLMRoberta Documentation](https://huggingface.co/docs/transformers/model_doc/xlm-roberta)
+
 ## Reproducing our result: Training and Evaluation
 
 - To train the network, run `python active_learning.py`. You can also wrap it around a `bash` script.
