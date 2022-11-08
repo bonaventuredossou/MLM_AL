@@ -27,9 +27,9 @@ Model | MasakhaNER | MasakhaNER2.0* | Text Classification (Yoruba/Hausa) | Senti
 
 ## HuggingFace usage of AfroLM-large
 ```python
-from transformers import AutoTokenizer, AutoModelForTokenClassification
-model = AutoModelForTokenClassification.from_pretrained("bonadossou/afrolm_active_learning")
-tokenizer = AutoTokenizer.from_pretrained("bonadossou/afrolm_active_learning")
+from transformers import XLMRobertaModel, XLMRobertaTokenizer
+model = XLMRobertaModel.from_pretrained("bonadossou/afrolm_active_learning")
+tokenizer = XLMRobertaTokenizer.from_pretrained("bonadossou/afrolm_active_learning")
 tokenizer.model_max_length = 256
 ```
 
