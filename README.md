@@ -44,17 +44,25 @@ tokenizer.model_max_length = 256
     
 
 ## Citation
- - **Arxiv Citation**:
  
- ``@misc{dossou2022afrolm,
-      title={AfroLM: A Self-Active Learning-based Multilingual Pretrained Language Model for 23 African Languages}, 
-      author={Bonaventure F. P. Dossou and Atnafu Lambebo Tonja and Oreen Yousuf and Salomey Osei and Abigail Oppong and Iyanuoluwa Shode and Oluwabusayo Olufunke Awoyomi and Chris Chinenye Emezue},
-      year={2022},
-      eprint={2211.03263},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}}``
+ ``@inproceedings{dossou-etal-2022-afrolm,
+    title = "{A}fro{LM}: A Self-Active Learning-based Multilingual Pretrained Language Model for 23 {A}frican Languages",
+    author = "Dossou, Bonaventure F. P.  and
+      Tonja, Atnafu Lambebo  and
+      Yousuf, Oreen  and
+      Osei, Salomey  and
+      Oppong, Abigail  and
+      Shode, Iyanuoluwa  and
+      Awoyomi, Oluwabusayo Olufunke  and
+      Emezue, Chris",
+    booktitle = "Proceedings of The Third Workshop on Simple and Efficient Natural Language Processing (SustaiNLP)",
+    month = dec,
+    year = "2022",
+    address = "Abu Dhabi, United Arab Emirates (Hybrid)",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.sustainlp-1.11",
+    pages = "52--64"}``
 
-We will share the official proceeding citation as soon as possible. Stay tuned, and if you have liked our work, give it a star.
 ## Reach out
 
 Do you have a question? Please create an issue and we will reach out as soon as possible
